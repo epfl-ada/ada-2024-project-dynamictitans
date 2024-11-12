@@ -1,43 +1,84 @@
 # Blockbusters and Busts: Unpacking the Gap Between Critics and Cash
 
 ## Abstract
-(insert actually good abstract here)
+
+The existence of the *Transformers* movie franchise raises a curious question: how can films that critics pan become massive box office successes, while critically acclaimed gems sometimes struggle commercially? This project explores the divide between critical and financial success in cinema, aiming to uncover what drives these differences. We’ll examine correlations between IMDb ratings and box office revenue to reveal general trends and identify outliers. Using a range of methodologies, from time-based and genre-specific analyses to sentiment analysis on user reviews, we aim to uncover patterns across genres, timeframes, and film attributes. Our approach integrates dataset merging, inflation-adjusted revenue comparisons, outlier classification, distribution analysis, and advanced sentiment modeling to answer our research questions and provide insight into this complex relationship between critics and audiences.
+
+---
 
 ## Research Questions
 
-### General Discrepancies
-- Can we observe any large-scale discrepancies between IMDb ratings and box office revenue across all films?
-- Are there specific outliers that exhibit a significant gap between IMDb ranking and box office revenue?
+### General Discrepancies:
+1. Are there large-scale correlations, or lack thereof, between IMDb ratings and box office revenue across all films?
+2. Are there specific outliers that exhibit a significant gap between IMDb ranking and box office revenue?
 
-### Genre-Specific Analysis
-- How do discrepancies between critical reception and box office revenue vary across different film genres?
-- Do certain genres show a stronger correlation between critical acclaim and box office success, or vice versa?
+### Genre-Specific Analysis:
+3. How do discrepancies between critical reception and box office revenue vary across different film genres?
+4. Do certain genres, countries, or other factors show a stronger correlation between critical acclaim and box office success, or vice versa?
 
-### Time-Based Trends
-- Do discrepancies between IMDb ratings and box office revenues exhibit patterns over time?
-- Are there specific eras where films were more likely to succeed critically but fail commercially (or the opposite)?
+### Time-Based Trends:
+5. Do discrepancies between IMDb ratings and box office revenues show patterns over time?
+6. Are there specific eras when films were more likely to succeed critically but fail commercially (or vice versa)?
 
-### Factors of Discrepancy
-- What characteristics (e.g., length, director, cast) are common among films with a significant discrepancy between IMDb ratings and box office revenue?
-- Can we categorize those films as “critically-acclaimed box office flops” or “commercially successful critical flops”?
-- Can sentiment analysis of reviews reveal thematic or narrative elements that tend to correlate with these discrepancies or contribute to those two categories?
+### Factors of Discrepancy:
+7. What characteristics (e.g., length, director, cast) are common among films with significant discrepancies between IMDb ratings and box office revenue?
+8. Can we categorize films as “overperformers” and “underperformers,” or more specifically, as “critically acclaimed box office flops” and “commercially successful critical flops”?
+9. Can sentiment analysis of reviews reveal thematic or narrative elements that correlate with these discrepancies or contribute to these categories?
+
+---
+
+## Additional Datasets
+
+- **IMDb Non-commercial Dataset:** 1,497,169 entries covering movies, TV episodes, and short films. This dataset includes:
+  - Average IMDb rating (0-10 scale)
+  - Genres
+  - Title type (e.g., movie, TV episode)
+  - Title
+  - Runtime
+
+---
 
 ## Methods
 
-### Data Collection & Integration
-- Utilize the IMDb dataset to gather ratings and critical reception metrics for a large set of films.
-- Use an additional dataset (e.g., CMU or other box office records) to obtain box office revenue information, ensuring data completeness.
+### I. Initial Data Collection & Integration
 
-### Ranking and Discrepancy Analysis
-- Rank films based on IMDb ratings and box office revenues across all genres and create a discrepancy metric, such as the difference between revenue rank and IMDb rating rank.
-- Perform time-period analyses by dividing films into chronological intervals. These intervals could be either equal-length periods or segments with an equal number of movies.
+1. **Dataset Merging and Filtering:** We will integrate the CMU and IMDb datasets, focusing on "movie" and "tvMovie" types. To avoid rating bias, we’ll filter out movies with fewer than 30 votes, yielding a refined dataset of 7,440 entries with valid box office revenue records.
+2. **Inflation Adjustment:** Box office revenues will be adjusted to 2024 USD using the Consumer Price Index (CPI) as a proxy for yearly inflation. We assume U.S. CPI values for consistency, given the U.S.’s prominence in global cinema.
 
-### Genre-Specific Analysis
-- Divide films by genre and apply the discrepancy analysis to each genre. This step will help identify genre-specific trends in critical versus commercial success.
+### II. General Discrepancy Analysis
 
-### Outlier Identification and Characteristic Aggregation
-- Define thresholds for "critically acclaimed" (e.g., IMDb rating ≥ 7.0) and "commercial success" (to be determined by box office revenue distribution).
-- Identify films that meet criteria for "critically acclaimed box office flops" or "commercially successful critical flops" and analyze common attributes like length, director, and cast for each type.
+1. **Correlation Exploration by Timeframe:** We will analyze correlations between inflation-adjusted box office revenue and IMDb ratings over specific years (1915-2005, every 10 years) to identify trends and deviations. Scatterplots and Ordinary Least Squares regression will quantify linear relationships.
+2. **Correlation Exploration by Genre:** Similar analysis will be conducted within genres, focusing on each movie’s primary genre as listed in the CMU dataset.
 
-### Sentiment Analysis
-- Conduct sentiment analysis on IMDb user reviews for each film using natural language processing (NLP) models, analyzing the sentiment trajectories and comparing average sentiment for each discrepancy type. This step will help construct an "average sentiment profile" for critical and commercial outliers.
+### III. Outlier Identification
+
+1. **Classification of Films by Critical and Commercial Success:** Regression analysis will classify films with inflation-adjusted box office residuals of +1 standard deviation or higher as “overperformers” and those at -1 or lower as “underperformers.” A nine-category threshold method was initially considered (e.g., high/medium/low box office and IMDb ratings) but was discarded due to potential arbitrariness. This approach may be revisited if time allows.
+
+### IV. Distribution Analysis
+
+1. **Overall Distribution Analysis:** For high-discrepancy categories (e.g., “overperformers” and “underperformers”), we will analyze distributions of attributes like length, director, and cast, visualizing these with bar charts and confidence intervals. Chi-square or t-tests will assess statistically significant differences.
+2. **Genre Distribution Analysis:** The same distribution analysis will be applied to the top 10 primary genres within each discrepancy category.
+
+### V. Sentiment Analysis
+
+1. **Sentiment Trajectory Modeling:** We’ll perform sentiment analysis on IMDb user reviews, examining sentiment per sentence using NLP models like RoBERTa. Sentiment trajectories for each film will be aggregated to form an “average sentiment profile” for each discrepancy type (e.g., "critical success but commercial flop") over the review timeline.
+
+---
+
+## Proposed Timeline
+
+- **Nov 15:** Finish II (Minimum Milestone P2 objectives here)
+- **Nov 19:** Finish III
+- **Dec 9:** Finish IV, V
+- **Dec 15:** Finish data story webpage
+- **Dec 20:** Final quality check, adjustments
+
+---
+
+## Team Organization
+
+- **Leo:** Initial obtaining of additional datasets, merging and cleaning data, Task I
+- **Ruoxi:** Initial analysis, Task I, Task III
+- **Gengfu:** Initial analysis, Task I, Task II
+- **Minwen:** Initial analysis, Task II, Task III
+- **Kaile:** problem formulation, README.md, task V, quality check
