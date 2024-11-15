@@ -6,6 +6,11 @@ from statsmodels.formula.api import ols
 import pandas as pd
 
 def plot_by_year_nonadjusted(cleaned_data):
+    """
+    Plots box office revenue not adjusted for inflation vs year.
+    :param cleaned_data: Processed dataframe
+    :return: Line plot
+    """
     # Calculate the average box office revenue per release year
     box_office_by_year = cleaned_data.groupby('Movie release year')['Movie box office revenue'].mean().reset_index()
 
@@ -29,42 +34,30 @@ def plot_by_year_nonadjusted(cleaned_data):
     plt.show()
 
 
-def plot_by_year_comparison(cleaned_data):
-    # Group by year and calculate the sum of both revenues per year
-    revenue_by_year = cleaned_data.groupby('Movie release year')[['Adjusted_Revenue', 'Movie box office revenue']].mean().reset_index()
-
-    # Plot the line chart
-    plt.figure(figsize=(12, 6))
-    plt.plot(revenue_by_year['Movie release year'], revenue_by_year['Adjusted_Revenue'], label='Adjusted Revenue', color='blue', marker='o')
-    plt.plot(revenue_by_year['Movie release year'], revenue_by_year['Movie box office revenue'], label='Original Box Office Revenue', color='orange', marker='o')
-
-    # Adding labels and title
-    plt.xlabel('Year')
-    plt.ylabel('Revenue')
-    plt.title('Yearly Comparison of Adjusted Revenue and Original Box Office Revenue')
-    plt.legend()
-    plt.grid(True)
-
-    # Display the chart
-    plt.show()
-
-
-def plot_by_year_comparison_outlier(cleaned_data):
+def plot_by_year_comparison_outlier(cleaned_data, outlier_years):
+    """
+    Plots box office revenue ADJUSTED for inflation vs year and also compared with unadjusted data. Use only after the adjust for inflation part in the notebook.
+    :param cleaned_data: Processed dataframe
+    :param outlier_years: Top years to highlight, 0 to disable
+    :return: Line plot
+    """
     # Group by year and calculate the sum of both revenues per year
     revenue_by_year = cleaned_data.groupby('Movie release year')[['Adjusted_Revenue', 'Movie box office revenue']].mean().reset_index()
     years = revenue_by_year['Movie release year']
     adjusted_revenue = revenue_by_year['Adjusted_Revenue']
-    top_6_revenue = revenue_by_year.sort_values(by='Adjusted_Revenue', ascending=False).head(6)
-    top_6_years = top_6_revenue['Movie release year'].to_list()
+    if outlier_years != 0:
+        top_revenue = revenue_by_year.sort_values(by='Adjusted_Revenue', ascending=False).head(outlier_years)
+        top_years = top_revenue['Movie release year'].to_list()
 
     # Plot the line chart
     plt.figure(figsize=(12, 6))
     plt.plot(revenue_by_year['Movie release year'], revenue_by_year['Adjusted_Revenue'], label='Adjusted Revenue', color='blue', marker='o')
     plt.plot(revenue_by_year['Movie release year'], revenue_by_year['Movie box office revenue'], label='Original Box Office Revenue', color='orange', marker='o')
-    for year in top_6_years:
-        if year in years.values:  # Check if the year is in the data
-            revenue = adjusted_revenue[years == year].values[0]  # Get revenue value for the year
-            plt.scatter(year, revenue, s=150, edgecolor='darkred', facecolor='none', linewidth=2)
+    if outlier_years != 0: 
+        for year in top_years:
+            if year in years.values:  # Check if the year is in the data
+                revenue = adjusted_revenue[years == year].values[0]  # Get revenue value for the year
+                plt.scatter(year, revenue, s=150, edgecolor='darkred', facecolor='none', linewidth=2)
 
     # Adding labels and title
     plt.xlabel('Year')
@@ -78,6 +71,11 @@ def plot_by_year_comparison_outlier(cleaned_data):
 
 
 def plot_distr_unadjusted(cleaned_data):
+    """
+    Plots the side-by-side hexbin joint plot plus kernel density estimate plot of box office revenue adjusted for inflation directly vs IMDb rating
+    :param cleaned_data: Processed dataframe
+    :return: hexbin + kde plot
+    """
 
     # Set the Seaborn theme style to white grid and use a muted color palette
     sns.set_theme(style="whitegrid", palette="muted")
@@ -102,6 +100,11 @@ def plot_distr_unadjusted(cleaned_data):
 
 
 def plot_distr_adjusted(cleaned_data):
+    """
+    Plots the side-by-side hexbin joint plot plus kernel density estimate plot of box office revenue adjusted for inflation and (1+log)'d vs IMDb rating
+    :param cleaned_data: Processed dataframe
+    :return: hexbin + kde plot
+    """
     # Set Seaborn theme for the plot (white grid and muted color palette)
     sns.set_theme(style="whitegrid", palette="muted")
 
@@ -135,6 +138,10 @@ def plot_distr_adjusted(cleaned_data):
 
 
 def plot_correlation_general(cleaned_data, model):
+    """
+    Plots the log revenue vs rating scatterplot of all movie data, calculates R2 correlation score, while also plotting +1 standard deviation interval around the linear regression line
+    :return: scatterplot
+    """
     # Calculate the coefficients, predictions, and standard deviation
     coefficients = model.params
     predictions = model.predict()
@@ -165,6 +172,11 @@ def plot_correlation_general(cleaned_data, model):
 
 
 def plot_correlation_per_country(cleaned_data):
+    """
+    Plots the log revenue vs rating scatterplot of movie data per select countries, calculates R2 correlation score, while also plotting +1 standard deviation interval around the linear regression line
+    :param cleaned_data: Processed dataframe
+    :return: scatterplot
+    """
     # Select the top 9 countries with the highest movie counts and get their names in a list
     selected_countries = cleaned_data['Primary Country'].value_counts().sort_values(ascending=False).head(9).index.tolist()
 
@@ -220,12 +232,15 @@ def plot_correlation_per_country(cleaned_data):
     plt.show()
 
 
-def plot_correlation_per_timeframe(cleaned_data):
+def plot_correlation_per_timeframe(cleaned_data, selected_years):
+    """
+    Plots the log revenue vs rating scatterplot of movie data per the selected timeframe specified, calculates R2 correlation score, while also plotting +1 standard deviation interval around the linear regression line
+    :param cleaned_data: Processed dataframe
+    :param selected_years: Selected timeframe in list or range() format
+    :return: scatterplot
+    """
     # Find the maximum year in the dataset for reference
     cleaned_data['Year'].max()
-
-    # Define the range of selected years, starting from 1915 and selecting every 10 years up to 2015
-    selected_years = range(1915, 2015, 10)
 
     # Subset the data to only include rows where the year is in the selected years
     subset = cleaned_data[cleaned_data['Year'].isin(selected_years)]
@@ -280,6 +295,12 @@ def plot_correlation_per_timeframe(cleaned_data):
 
 
 def plot_genre_distribution(cleaned_data, model):
+    """
+    Plots the barplot of genre distribution of "underperformers" and "overperformers" respectively compared to linear regression data
+    :param cleaned_data: Processed dataframe
+    :param model: statsmodels.formula.api.ols regression model already fitted on data
+    :return: Barplot
+    """
     predictions = model.predict()
     std_dev = np.std(predictions - cleaned_data['Log_Revenue'])
 

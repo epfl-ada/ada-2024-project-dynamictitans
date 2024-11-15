@@ -4,7 +4,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def kmeans_elbow_test(data):
-    # Finding sum-of-squared-errors elbow to determine the best k number for clustering
+    """
+    Finding sum-of-squared-errors elbow to determine the best k number for clustering
+    :return: k-means elbow plot of sum-of-squares-error vs k number
+    """
     x=data['averageRating']
     x = (x -x.mean())/x.std()
     y=data['Log_Revenue']
@@ -28,7 +31,10 @@ def kmeans_elbow_test(data):
 
 
 def kmeans_test(data, n_clusters):
-    # Finding sum-of-squared-errors elbow to determine the best k number for clustering
+    """
+    Finding sum-of-squared-errors elbow to determine the best k number for clustering
+    :return: k-means clustering map
+    """
     x=data['averageRating']
     x = (x -x.mean())/x.std()
     y=data['Log_Revenue']
