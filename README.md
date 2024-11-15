@@ -42,7 +42,7 @@ The existence of the *Transformers* movie franchise raises a curious question: h
 
 ### I. Initial Data Collection & Integration
 
-1. **Dataset Merging and Filtering:** We will integrate the CMU and IMDb datasets, focusing on "movie" and "tvMovie" types. To avoid rating bias, we’ll filter out movies with fewer than 30 votes, yielding a refined dataset of 7,440 entries with valid box office revenue records.
+1. **Dataset Merging and Filtering:** We will integrate the CMU and IMDb datasets. Since no direct mapping exists between the IMDB dataset and our dataset, we merge the two based on movie titles. This approach is likely to introduce duplicates, which we will then filter out by using additional shared identifiers, such as runtime and release year. Our final dataset will retain only the movies that match these criteria. To avoid rating bias, we’ll filter out movies with fewer than 30 votes, yielding a refined dataset of 7,356 entries with valid box office revenue records.
 2. **Inflation Adjustment:** Box office revenues will be adjusted to 2024 USD using the Consumer Price Index (CPI) as a proxy for yearly inflation. We assume U.S. CPI values for consistency, given the U.S.’s prominence in global cinema.
 
 ### II. General Discrepancy Analysis
