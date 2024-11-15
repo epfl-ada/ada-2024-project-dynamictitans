@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import json
+import ast
 
 def get_data_path(file_name):
     """
@@ -89,6 +90,7 @@ def merge_movie_imdb_data(movie_df, imdb_df):
     merged_final2['startYear'] = pd.to_numeric(merged_final['startYear'], errors='coerce').astype('Int64')
     merged_final2['Movie release year'] = merged_final2['Movie release year'].astype('int')
     merged_final2['Movie genres'] = merged_final2['Movie genres'].apply(lambda x: list(json.loads(x).values()))
+    merged_final2['Movie countries'] = merged_final2['Movie countries'].apply(lambda x: list(json.loads(x).values()))
     merged_final2['Primary Country'] = merged_final2['Movie countries'].apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else None)
     
     return merged_final2
@@ -96,6 +98,7 @@ def merge_movie_imdb_data(movie_df, imdb_df):
 def preprocess_inflation_data():
     """
     Load and preprocess the inflation data.
+    Calculate the currency rate with 2020 fixed base currency
     :return: The preprocessed inflation DataFrame
     """
     inflation_file_path = get_data_path('CPI-US-Iflation.xlsx')
@@ -146,4 +149,5 @@ if __name__ == "__main__":
     # Preprocess the inflation data 
     inflation = preprocess_inflation_data()
     print(inflation.head())
-    merged_data.to_csv(os.path.join(output_dir, 'inflation.csv'), index=False)
+    inflation.to_csv(os.path.join(output_dir, 'inflation.csv'), index=False)
+
