@@ -83,8 +83,6 @@ The existence of the *Transformers* movie franchise raises a curious question: h
 - **Minwen:** Initial analysis, Task II, Task III
 - **Kaile:** problem formulation, README.md, task V, quality check
 
----
-
 ## Repository
 
 ```bash
