@@ -2,7 +2,7 @@
 
 ## Abstract
 
-The existence of the *Transformers* movie franchise raises a curious question: how can films that critics pan become massive box office successes, while critically acclaimed gems sometimes struggle commercially? This project explores the divide between critical and financial success in cinema, aiming to uncover what drives these differences. We’ll examine correlations between IMDb ratings and box office revenue to reveal general trends and identify outliers. Using a range of methodologies, from time-based and genre-specific analyses to sentiment analysis on user reviews, we aim to uncover patterns across genres, timeframes, and film attributes. Our approach integrates dataset merging, inflation-adjusted revenue comparisons, outlier classification, distribution analysis, and advanced sentiment modeling to answer our research questions and provide insight into this complex relationship between critics and audiences.
+The existence of the *Transformers* movie franchise raises a curious question: how can films that critics pan become massive box office successes, while critically acclaimed gems sometimes struggle commercially? This project explores the divide between critical and financial success in cinema - or what makes them over/underperform in general when their critics ratings should predict otherwise - aiming to uncover what drives these differences. We’ll examine correlations between IMDb ratings and box office revenue to reveal general trends and identify outliers. Using a range of methodologies, from time-based and genre-specific analyses to sentiment analysis on user reviews, we aim to uncover patterns across genres, timeframes, and film attributes. Our approach integrates dataset merging, inflation-adjusted revenue comparisons, outlier classification, distribution analysis, and advanced sentiment modeling to answer our research questions and provide insight into this complex relationship between critics and audiences.
 
 ---
 
@@ -61,7 +61,7 @@ The existence of the *Transformers* movie franchise raises a curious question: h
 
 ### V. Sentiment Analysis
 
-1. **Sentiment Trajectory Modeling:** We’ll perform sentiment analysis on IMDb user reviews, examining sentiment per sentence using NLP models like RoBERTa. Sentiment trajectories for each film will be aggregated to form an “average sentiment profile” for each discrepancy type (e.g., "critical success but commercial flop") over the review timeline.
+1. **Sentiment Trajectory Modeling:** We’ll perform sentiment analysis on IMDb user reviews, examining sentiment per sentence using NLP models like RoBERTa. Sentiment trajectories for each film will be aggregated to form an “average sentiment profile” for each discrepancy type (e.g., "overperformers", or if time allows, even more specific categories such as "critical success but commercial flop") over the review timeline.
 
 ---
 
@@ -82,3 +82,56 @@ The existence of the *Transformers* movie franchise raises a curious question: h
 - **Gengfu:** Initial analysis, Task I, Task II
 - **Minwen:** Initial analysis, Task II, Task III
 - **Kaile:** problem formulation, README.md, task V, quality check
+
+---
+
+## Repository
+
+```bash
+# clone project
+git clone https://github.com/epfl-ada/ada-2024-project-dynamictitans/tree/main
+cd <project repo>
+
+# [OPTIONAL] create conda environment
+conda create -n <env_name> python=3.11 or ...
+conda activate <env_name>
+
+# install requirements
+pip install -r pip_requirements.txt
+
+# separately download and copy CMU movie and IMDb datasets (link see results.ipynb notebook)
+cp movie.metadata.tsv character.metadata.tsv title.ratings.tsv title.basics.tsv <project repo>/src/data
+
+# preprocess dataset separately
+python src/script/data_preprocessing.py
+
+# run/see results.ipynb notebook for current results
+
+
+```
+
+
+
+### How to use the library
+Initial data preprocessing python script from the full CMU and IMDb datasets go in `script/data_preprocessing.py` and is run separately from the notebook. All plotting methods called by the notebook go in `src/script/plots.py`. Scripts and methods called by the notebook related to tests such as k-means clustering tests employed in the process and any future tests go in `tests/`.
+
+
+## Project Structure
+
+```
+├── data                        <- Project data files
+│
+├── src                         <- Source code
+│   ├── data                            <- Data directory
+│   ├── models                          <- Model directory
+│   ├── utils                           <- Utility directory
+│   ├── scripts                         <- Shell scripts
+│
+├── tests                       <- Tests of any kind
+│
+├── results.ipynb               <- a well-structured notebook showing the results
+│
+├── .gitignore                  <- List of files ignored by git
+├── pip_requirements.txt        <- File for installing python dependencies
+└── README.md
+```
