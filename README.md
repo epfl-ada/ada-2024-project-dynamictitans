@@ -97,7 +97,7 @@ conda create -n <env_name> python=3.11 or ...
 conda activate <env_name>
 
 # install requirements
-pip install -r pip_requirements.txt
+pip install -r requirements.txt
 
 # separately download and copy CMU movie and IMDb datasets (link see results.ipynb notebook)
 cp movie.metadata.tsv character.metadata.tsv title.ratings.tsv title.basics.tsv <project repo>/src/data
@@ -125,13 +125,13 @@ Initial data preprocessing python script from the full CMU and IMDb datasets go 
 │   ├── data                            <- Data directory
 │   ├── models                          <- Model directory
 │   ├── utils                           <- Utility directory
-│   ├── scripts                         <- Shell scripts
+│   ├── script                         <- Shell scripts
 │
 ├── tests                       <- Tests of any kind
 │
 ├── results.ipynb               <- a well-structured notebook showing the results
 │
 ├── .gitignore                  <- List of files ignored by git
-├── pip_requirements.txt        <- File for installing python dependencies
+├── requirements.txt        <- File for installing python dependencies
 └── README.md
 ```
