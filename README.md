@@ -48,7 +48,7 @@ The existence of the *Transformers* movie franchise raises a curious question: h
 ### II. General Discrepancy Analysis
 
 1. **Correlation Exploration by Timeframe:** We will analyze correlations between inflation-adjusted box office revenue and IMDb ratings over specific years (1915-2005, every 10 years) to identify trends and deviations. Scatterplots and Ordinary Least Squares regression will quantify linear relationships.
-2. **Correlation Exploration by Genre:** Similar analysis will be conducted within genres, focusing on each movie’s primary genre as listed in the CMU dataset.
+2. **Correlation Exploration by Genre/Country:** Similar analysis will be conducted across genres and countries, focusing on each movie’s primary genre as listed in the CMU dataset.
 
 ### III. Outlier Identification
 
