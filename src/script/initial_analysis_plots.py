@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import plotly.colors as pc
 from scipy.interpolate import make_interp_spline
 
 
@@ -149,3 +150,173 @@ def plot_runtime_influence_distr(cleaned_data):
         width=1000, height=600
     )
     fig_rev.show()
+
+
+def plot_countries_revenue_rating(cleaned_data):
+    filtered_data = cleaned_data.dropna(subset=['averageRating', 'Adjusted_Revenue', 'Movie countries'])
+
+    # 解析 'Movie countries' 并保留第一个国家
+    filtered_data['Movie countries'] = filtered_data['Movie countries'].apply(lambda x: eval(x) if isinstance(x, str) else x)
+    filtered_data['Primary Country'] = filtered_data['Movie countries'].apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else 'Unknown')
+
+    # 正向计算 position_density：评分和票房的加权平均，数值越高越靠近右上角
+    filtered_data['Normalized Rating'] = filtered_data['averageRating'] / filtered_data['averageRating'].max()
+    filtered_data['Normalized Revenue'] = filtered_data['Adjusted_Revenue'] / filtered_data['Adjusted_Revenue'].max()
+    filtered_data['Position Density'] = (filtered_data['Normalized Rating'] + filtered_data['Normalized Revenue']) / 2
+
+    # 绘制散点图：x轴为评分，y轴为票房，颜色表示 position_density
+    fig = px.scatter(
+        filtered_data,
+        x='averageRating',
+        y='Adjusted_Revenue',
+        color='Position Density',  # 正向映射
+        title="Movie Ratings vs Adjusted Revenue with Position-Based Colors",
+        labels={
+            "averageRating": "Average Rating",
+            "Adjusted_Revenue": "Adjusted Revenue (USD)",
+            "Position Density": "Position Density"
+        },
+        hover_data=['Movie name', 'Primary Country'],  # 显示电影名称和国家
+        color_continuous_scale='Reds',  # 从浅蓝到深蓝
+        range_color=[0, 1],  # 映射范围设置
+        width=1000,
+        height=700
+    )
+
+    # 更新图表样式
+    fig.update_traces(marker=dict(size=10, opacity=0.8))
+    fig.update_layout(
+        xaxis=dict(title="Average Rating"),
+        yaxis=dict(title="Adjusted Revenue"),
+        coloraxis_colorbar=dict(title="Position Density")
+    )
+
+    fig.show()
+
+    # 获取唯一国家列表并动态分配颜色
+    unique_countries = filtered_data['Primary Country'].unique()
+    num_countries = len(unique_countries)
+    print(f"Total unique countries: {num_countries}")
+
+    # 生成高对比度的颜色列表
+    if num_countries <= 10:
+        base_colors = pc.qualitative.Bold
+    else:
+        base_colors = pc.qualitative.Bold + pc.qualitative.Safe + pc.qualitative.D3
+    expanded_colors = base_colors * (num_countries // len(base_colors) + 1)
+    country_color_map = {country: expanded_colors[i] for i, country in enumerate(unique_countries)}
+
+    # 美化样式：设置点的样式和透明度
+    fig.update_traces(marker=dict(
+        size=10,
+        opacity=0.7
+    ))
+
+    # 更新布局：Y轴从0开始，坐标轴美化
+    fig.update_layout(
+        xaxis=dict(
+            title="Average Rating",
+            showgrid=False,  # 隐藏网格线
+            zeroline=True,
+            zerolinewidth=1
+        ),
+        yaxis=dict(
+            title="Adjusted Revenue (USD)",
+            range=[0, None],  # 从0开始
+            showgrid=False,
+            zeroline=True,
+            zerolinewidth=1
+        ),
+        legend=dict(
+            title="Movie Country",
+            x=1.02, y=1,  # 图例位置
+            bgcolor="rgba(255,255,255,0.8)",
+            bordercolor="Black",
+            borderwidth=1
+        ),
+        margin=dict(l=50, r=50, t=80, b=50),  # 调整边距
+        plot_bgcolor="rgba(240,240,240,0.5)"  # 设置背景颜色为浅灰色
+    )
+
+    fig.show()
+
+
+def animate_country_rating_revenue(cleaned_data):
+    # 数据筛选：去除缺失值
+    filtered_data = cleaned_data.dropna(subset=['averageRating', 'Adjusted_Revenue', 'Movie release year', 'Movie countries'])
+
+    # 解析 'Movie countries' 并保留第一个国家
+    filtered_data['Movie countries'] = filtered_data['Movie countries'].apply(lambda x: eval(x) if isinstance(x, str) else x)
+    filtered_data['Primary Country'] = filtered_data['Movie countries'].apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else 'Unknown')
+
+    # 确保年份为整数类型，并按年份升序排序
+    filtered_data['Movie release year'] = filtered_data['Movie release year'].astype(int)
+    filtered_data = filtered_data.sort_values(by='Movie release year', ascending=True)
+
+    # 获取所有年份和国家的组合，确保所有国家和年份完整覆盖
+    all_years = filtered_data['Movie release year'].unique()
+    all_countries = filtered_data['Primary Country'].unique()
+    all_combinations = pd.MultiIndex.from_product(
+        [all_years, all_countries], names=['Movie release year', 'Primary Country']
+    ).to_frame(index=False)
+
+    # 合并原始数据，填充缺失值
+    filled_data = all_combinations.merge(filtered_data, on=['Movie release year', 'Primary Country'], how='left')
+    filled_data['averageRating'] = filled_data['averageRating'].fillna(0.1)  # 填充评分缺失值
+    filled_data['Adjusted_Revenue'] = filled_data['Adjusted_Revenue'].fillna(0.1)  # 填充票房缺失值
+
+    # 获取所有国家并分配唯一颜色
+    unique_countries = filled_data['Primary Country'].unique()
+    base_colors = pc.qualitative.Bold + pc.qualitative.D3 + pc.qualitative.Light24  # 多种高对比度调色板
+    color_map = {country: base_colors[i % len(base_colors)] for i, country in enumerate(unique_countries)}
+
+    # 强制时间轮播帧升序，保证年份逐年播放
+    filled_data['Primary Country'] = filled_data['Primary Country'].astype(str)
+
+    # 绘制时间轮播图
+    fig = px.scatter(
+        filled_data,
+        x='averageRating',
+        y='Adjusted_Revenue',
+        animation_frame='Movie release year',
+        color='Primary Country',
+        title="Movie Ratings and Adjusted Revenue Over Time",
+        labels={
+            "averageRating": "Average Rating",
+            "Adjusted_Revenue": "Adjusted Revenue (USD)",
+            "Movie release year": "Release Year",
+            "Primary Country": "Country"
+        },
+        hover_data=['Primary Country'],
+        size='Adjusted_Revenue',
+        size_max=80,
+        color_discrete_map=color_map,
+        template='plotly',
+        width=1200,
+        height=700
+    )
+
+    # 确保所有国家在图例中显示
+    fig.for_each_trace(lambda t: t.update(marker=dict(opacity=0.7)))
+
+    # 美化布局
+    fig.update_layout(
+        xaxis=dict(title="Average Rating", range=[0, 10]),
+        yaxis=dict(title="Adjusted Revenue (USD)", range=[0, filled_data['Adjusted_Revenue'].max() * 1.1]),
+        legend_title="Primary Country",
+        margin=dict(l=50, r=50, t=80, b=50),
+        updatemenus=[dict(
+            type="buttons",
+            showactive=False,
+            buttons=[dict(
+                        method="animate",
+                        args=[None, {"frame": {"duration": 1000, "redraw": True},
+                                    "fromcurrent": True, "mode": "immediate"}]),
+                    dict(
+                        method="animate",
+                        args=[[None], {"frame": {"duration": 0, "redraw": False},
+                                        "mode": "immediate"}])])
+        ]
+    )
+
+    fig.show()
