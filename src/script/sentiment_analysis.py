@@ -49,7 +49,7 @@ def plot_sentiment_label_distribution(input_df):
         cmap="RdYlBu"  
     )
 
-    ax.set_title("Predicted Label Distribution (Overperformed)", fontsize=16, pad=15)
+    ax.set_title("Predicted Label Distribution", fontsize=16, pad=15)
     ax.set_xlabel("Count of Predicted Labels", fontsize=12)
     ax.set_yticks([]) 
     ax.set_ylabel("Wikipedia Movie ID", fontsize=12)
@@ -136,43 +136,37 @@ def count_emotional_fluctuations(emotion_curve, threshold=0.0):
 
 def plot_emotional_fluctuation_distr(h_standard_score, l_standard_score): 
 
-    # Step 2: Set the threshold for detecting significant emotional fluctuations
-    amplitude_threshold = 0.2  # Define a threshold for significant fluctuations
+    # Set the threshold for detecting significant emotional fluctuations
+    amplitude_threshold = 0.2 
 
-    # Step 3: Calculate the number of emotional fluctuations for each curve
-    # For high-sensitivity group
+    # Calculate the number of emotional fluctuations for each category
     h_fluctuations = [
         count_emotional_fluctuations(curve, amplitude_threshold) 
         for curve in h_standard_score
     ]
 
-    # For low-sensitivity group
     l_fluctuations = [
         count_emotional_fluctuations(curve, amplitude_threshold) 
         for curve in l_standard_score
     ]
 
-    # Step 4: Plot histograms for the emotional fluctuations
-    plt.figure(figsize=(10, 6))  # Set the overall figure size
+    plt.figure(figsize=(10, 6))
 
-    # Plot the histogram for the high-sensitivity group's emotional fluctuations
-    plt.subplot(2, 1, 1)  # Create a subplot in the top panel
-    plt.hist(h_fluctuations, bins=15, color='blue', alpha=0.7, edgecolor='black')  # Enhanced visual properties
-    plt.title("Emotional Fluctuations in Over-Performed Group")  # Add a title
-    plt.xlabel("Number of Fluctuations")  # Label the x-axis
-    plt.ylabel("Frequency")  # Label the y-axis
+    # Plot the histogram for overperformers' emotional fluctuations
+    plt.subplot(2, 1, 1)
+    plt.hist(h_fluctuations, bins=15, color='blue', alpha=0.7, edgecolor='black')
+    plt.title("Emotional Fluctuations in Overperformers")
+    plt.xlabel("Number of Fluctuations")
+    plt.ylabel("Frequency")
 
-    # Plot the histogram for the low-sensitivity group's emotional fluctuations
-    plt.subplot(2, 1, 2)  # Create a subplot in the bottom panel
-    plt.hist(l_fluctuations, bins=15, color='green', alpha=0.7, edgecolor='black')  # Enhanced visual properties
-    plt.title("Emotional Fluctuations in Under-Performed Group")  # Add a title
-    plt.xlabel("Number of Fluctuations")  # Label the x-axis
-    plt.ylabel("Frequency")  # Label the y-axis
+    # Ditto for underperformers
+    plt.subplot(2, 1, 2)
+    plt.hist(l_fluctuations, bins=15, color='green', alpha=0.7, edgecolor='black')
+    plt.title("Emotional Fluctuations in Underperformers")
+    plt.xlabel("Number of Fluctuations")
+    plt.ylabel("Frequency")
 
-    # Adjust layout to prevent overlap between subplots
     plt.tight_layout()
-
-    # Display the histograms
     plt.show()
 
 
@@ -195,32 +189,29 @@ def plot_emotional_magnitude_distr(h_standard_score, l_standard_score):
     # Set the amplitude threshold for filtering emotional magnitudes
     amplitude_threshold = 0.2
 
-    # Calculate the magnitude of emotional fluctuations for each curve in the high-sensitivity group
+    # Calculate the magnitude of emotional fluctuations for each curve among the overperformers
     h_fluctuations = [count_emotion_magnitude(curve, amplitude_threshold) for curve in h_standard_score]
 
-    # Calculate the magnitude of emotional fluctuations for each curve in the low-sensitivity group
+    # Ditto for the underperformers
     l_fluctuations = [count_emotion_magnitude(curve, amplitude_threshold) for curve in l_standard_score]
 
-    # Plot the histogram for the high-sensitivity group's emotional fluctuation magnitudes
-    plt.subplot(2, 1, 1)  # Create a subplot (top panel)
-    plt.hist(h_fluctuations, bins=15, edgecolor='black')  # Add edgecolor for better visibility
-    plt.xlim(0, 1)  # Set the x-axis limits for consistency
-    plt.title("High-Sensitivity Group: Emotional Magnitude")  # Add a title
-    plt.xlabel("Magnitude")  # Label the x-axis
-    plt.ylabel("Frequency")  # Label the y-axis
+    # Plot the histogram for overperformers' emotional fluctuation magnitudes
+    plt.subplot(2, 1, 1)
+    plt.hist(h_fluctuations, bins=15, edgecolor='black')
+    plt.xlim(0, 1)
+    plt.title("Overperformers: Emotional Magnitude")
+    plt.xlabel("Magnitude")
+    plt.ylabel("Frequency")
 
-    # Plot the histogram for the low-sensitivity group's emotional fluctuation magnitudes
-    plt.subplot(2, 1, 2)  # Create a subplot (bottom panel)
-    plt.hist(l_fluctuations, bins=15, edgecolor='black')  # Add edgecolor for better visibility
-    plt.xlim(0, 1)  # Set the x-axis limits for consistency
-    plt.title("Low-Sensitivity Group: Emotional Magnitude")  # Add a title
-    plt.xlabel("Magnitude")  # Label the x-axis
-    plt.ylabel("Frequency")  # Label the y-axis
+    # Plot the histogram for underperformers' emotional fluctuation magnitudes
+    plt.subplot(2, 1, 2)
+    plt.hist(l_fluctuations, bins=15, edgecolor='black')
+    plt.xlim(0, 1)
+    plt.title("Underperformers: Emotional Magnitude")
+    plt.xlabel("Magnitude")
+    plt.ylabel("Frequency")
 
-    # Adjust layout for better visualization
     plt.tight_layout()
-
-    # Display the plots
     plt.show()
 
 
@@ -233,23 +224,20 @@ def linear_regression_on_sequences(standard):
     """
     results = []
     for idx, sequence in enumerate(standard):
-        # Convert the sequence to a NumPy array
-        y = np.array(sequence)  # Dependent variable (y)
-        x = np.arange(len(y))   # Independent variable (x), a sequence of integers from 0 to len(y)-1
+        y = np.array(sequence)
+        x = np.arange(len(y))   # a sequence of integers from 0 to len(y)-1
         
         # Add a constant term (intercept) to the independent variable
         x = sm.add_constant(x)
-        
-        # Fit the ordinary least squares (OLS) regression model
+    
         model = sm.OLS(y, x).fit()
         
         # Extract regression coefficients and p-values
-        coefficients = model.params  # Regression coefficients [intercept, slope]
-        p_values = model.pvalues     # p-values for the coefficients [intercept, slope]
+        coefficients = model.params 
+        p_values = model.pvalues 
         
         # Check if the p-value for the slope is below the significance threshold (0.1)
-        if p_values[1] < 0.1:  # Consider slope significant only if p-value < 0.1
-            # Save the results for this sequence
+        if p_values[1] < 0.1:
             results.append({
                 "sequence_index": idx,            # Sequence index
                 "intercept": coefficients[0],     # Intercept
@@ -258,5 +246,65 @@ def linear_regression_on_sequences(standard):
                 "p_value_slope": p_values[1]      # p-value for the slope
             })
     
-    # Return the results as a pandas DataFrame for better usability and analysis
     return pd.DataFrame(results)
+
+def most_frequent(labels):
+    if labels:  # Ensure the list is not empty
+        numbers = re.findall(r'\d+', labels)  # Extract all numeric labels in a list, for example ['3', '3', '3', '3', '0', '4']
+        numbers = list(map(int, numbers)) 
+        return Counter(numbers).most_common(1)[0][0]  # Get the most frequent element
+    return None  # Return None if the list is empty
+
+def second_most_frequent(labels):
+    if labels:  # Ensure the list is not empty
+        numbers = re.findall(r'\d+', labels)  # Extract all numeric labels in a list, for example ['3', '3', '3', '3', '0', '4']
+        numbers = list(map(int, numbers)) 
+        counts = Counter(numbers).most_common()  # Rank by frequency
+        # Return SECOND most frequent if there are indeed two or more emotions, else return the most frequent
+        if len(counts) > 1:
+            return counts[1][0]
+        elif counts:
+            return counts[0][0]
+    return None  # Return None if the list is empty
+
+
+def plot_regression_slope_distr(h_regression_results, l_regression_results):
+    # Plot histogram of slopes for overperformers
+    plt.figure(figsize=(8,6))
+    plt.subplot(2, 2, 1) 
+    plt.hist(h_regression_results['slope'], bins=15, edgecolor='black')
+    plt.xlim(-0.01, 0.01)
+    plt.title("Overperformers: Slope Distribution")
+    plt.xlabel("Slope")
+    plt.ylabel("Frequency")
+
+    # Plot histogram of slopes for underperformers
+    plt.subplot(2, 2, 2)
+    plt.hist(l_regression_results['slope'], bins=15, edgecolor='black')
+    plt.xlim(-0.03, 0.03)
+    plt.title("Underperformers: Slope Distribution")
+    plt.xlabel("Slope")
+    plt.ylabel("Frequency")
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_regression_intercept_distr(h_regression_results, l_regression_results):
+    # Plot histogram of intercepts for overperformers
+    plt.figure(figsize=(8,6))
+    plt.subplot(2, 2, 1)
+    plt.hist(h_regression_results['intercept'], bins=15, edgecolor='black')
+    plt.title("Overperformers: Intercept Distribution")
+    plt.xlabel("Intercept")
+    plt.ylabel("Frequency")
+
+    # Plot histogram of intercepts for underperformers
+    plt.subplot(2, 2, 2) 
+    plt.hist(l_regression_results['intercept'], bins=15, edgecolor='black')
+    plt.title("Underperformers: Intercept Distribution")
+    plt.xlabel("Intercept")
+    plt.ylabel("Frequency")
+
+    plt.tight_layout()
+    plt.show()
