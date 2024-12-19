@@ -516,7 +516,7 @@ def plot_correlation_per_timeframe(cleaned_data, selected_years):
     # Display the entire set of subplots
     plt.show()
 
-def create_chord_diagram(merged_data, targets):
+def create_chord_diagram(merged_data, targets, name):
     """
     Generate a Chord Diagram showing relationships between the first genre of movies
     and actor gender for a subset of target movies.
@@ -564,7 +564,7 @@ def create_chord_diagram(merged_data, targets):
         labels='index',                      
         node_color='color',                  
         node_size=10,                         
-        title="First Genre and Actor Gender Chord Diagram (Overperformers)",
+        title=f"First Genre and Actor Gender Chord Diagram ({name})",
         height=600,                          
         width=600                              
     )
