@@ -29,7 +29,7 @@ def sentiment_distr_piechart(target_movies, label_mapping, target_label="Most Fr
     plt.show()
 
 
-def plot_sentiment_label_distribution(input_df):
+def plot_sentiment_label_distribution(input_df, label_mapping):
     df = input_df.head(80)
 
     def extract_numbers(labels):
@@ -40,6 +40,8 @@ def plot_sentiment_label_distribution(input_df):
 
     label_distribution = df["Extracted Labels"].apply(lambda x: pd.Series(x).value_counts()).fillna(0)
     label_distribution.index = df["Wikipedia movie ID"]
+    columns_to_map = {key: label_mapping[key] for key in label_distribution.columns if key in label_mapping}
+    label_distribution = label_distribution.rename(columns=columns_to_map)
 
     ax = label_distribution.plot(
         kind="barh", 
@@ -114,6 +116,33 @@ def plot_time_series_kmeans(n, labels, model, h_formatted_series):
         plt.legend(loc="upper right", fontsize=12)
         plt.tight_layout()
         plt.show()
+
+def plot_time_series_mean(labels, model, h_formatted_series, name):
+    label_counts = Counter(labels)
+
+    plt.figure(figsize=(10, 6))  
+
+    for i, label in enumerate(labels):
+        if label == 0:
+            plt.plot(h_formatted_series[i].ravel(), color='gray', alpha=0.5)  # 无标签灰色曲线
+
+    plt.plot(
+        model.cluster_centers_[0].ravel(),
+        color='red',
+        linewidth=3,
+        #linestyle='--',
+        label="Centroid"
+    )
+
+    num_movies = label_counts[0]
+        
+    plt.title(f"{name} (Movies: {num_movies})", fontsize=16)
+    plt.xlabel("Time Steps", fontsize=14)
+    plt.ylabel("Value", fontsize=14)
+    plt.grid(alpha=0.3) 
+    plt.legend(loc="upper right", fontsize=12)
+    plt.tight_layout()
+    plt.show()
 
 
 
