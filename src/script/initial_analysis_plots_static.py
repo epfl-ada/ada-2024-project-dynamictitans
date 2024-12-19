@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from matplotlib import cm
 import ast
 import pandas as pd
 import numpy as np
@@ -32,203 +34,107 @@ def plot_data_languages(cleaned_data):
 
 def plot_runtime_influence(cleaned_data):
 
-    # 分析Movie Runtime对averageRating和Adjusted_Revenue的影响
-    # 提取runtime, averageRating, Adjusted_Revenue数据
+    # Analyze the influence of Movie Runtime on averageRating and Adjusted_Revenue
+    # Extract runtime, averageRating, and Adjusted_Revenue data
     runtime_data = cleaned_data[['Movie runtime', 'averageRating', 'Adjusted_Revenue']].dropna()
 
-    # 绘制Runtime vs averageRating
-    fig_rating = px.scatter(
-        runtime_data,
-        x='Movie runtime',
-        y='averageRating',
-        title='Movie Runtime vs Average Rating',
-        labels={'Movie runtime': 'Runtime (minutes)', 'averageRating': 'Average Rating'},
-        width=1000,
-        height=600,
-    )
-    fig_rating.update_layout(
-        title_font=dict(size=20),
-        xaxis=dict(title='Runtime (minutes)', titlefont=dict(size=14), tickfont=dict(size=12)),
-        yaxis=dict(title='Average Rating', titlefont=dict(size=14), tickfont=dict(size=12))
-    )
-    fig_rating.show()
+    # Plot Runtime vs Average Rating
+    plt.figure(figsize=(10, 6))
+    plt.scatter(runtime_data['Movie runtime'], runtime_data['averageRating'], alpha=0.6)
+    plt.title('Movie Runtime vs Average Rating', fontsize=20)
+    plt.xlabel('Runtime (minutes)', fontsize=14)
+    plt.ylabel('Average Rating', fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
 
-    # 绘制Runtime vs Adjusted_Revenue
-    fig_revenue = px.scatter(
-        runtime_data,
-        x='Movie runtime',
-        y='Adjusted_Revenue',
-        title='Movie Runtime vs Adjusted Revenue',
-        labels={'Movie runtime': 'Runtime (minutes)', 'Adjusted_Revenue': 'Adjusted Revenue (scaled)'},
-        width=1000,
-        height=600
-    )
-    fig_revenue.update_layout(
-        title_font=dict(size=20),
-        xaxis=dict(title='Runtime (minutes)', titlefont=dict(size=14), tickfont=dict(size=12)),
-        yaxis=dict(title='Adjusted Revenue', titlefont=dict(size=14), tickfont=dict(size=12))
-    )
-    fig_revenue.show()
+    # Plot Runtime vs Adjusted Revenue
+    plt.figure(figsize=(10, 6))
+    plt.scatter(runtime_data['Movie runtime'], runtime_data['Adjusted_Revenue'], alpha=0.6)
+    plt.title('Movie Runtime vs Adjusted Revenue', fontsize=20)
+    plt.xlabel('Runtime (minutes)', fontsize=14)
+    plt.ylabel('Adjusted Revenue (scaled)', fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
 
 def plot_runtime_influence_distr_short(cleaned_data):
-    # 提取runtime, averageRating, Adjusted_Revenue数据
+
+    # Extract runtime, averageRating, and Adjusted_Revenue data
     runtime_data = cleaned_data[['Movie runtime', 'averageRating', 'Adjusted_Revenue']].dropna()
 
-    # 移除runtime=1003的数据
+    # Remove runtime=1003 outlier
     runtime_data = runtime_data[runtime_data['Movie runtime'] != 1003]
 
-    # 分段：将runtime从0到380以20分钟为间隔分段
+    # Create bins: Divide runtime from 0 to 380 into 20-minute intervals
     bins = list(range(0, 381, 20))
 
-    # 计算每个bin的averageRating和Adjusted_Revenue的平均值
+    # Calculate the average value of averageRating and Adjusted_Revenue for each bin
     runtime_data['Runtime Bin'] = pd.cut(runtime_data['Movie runtime'], bins=bins, right=False)
     binned_data = runtime_data.groupby('Runtime Bin').agg({
         'averageRating': 'mean',
         'Adjusted_Revenue': 'mean'
     }).reset_index()
 
-    # 移除缺失值的时间段
+    # Remove bins with missing values
     binned_data = binned_data.dropna()
 
-    # 计算每个bin的中心点，用于平滑曲线的x轴
+    # Calculate the center point of each bin for smooth curve plotting
     bin_centers = [(interval.left + interval.right) / 2 for interval in binned_data['Runtime Bin']]
 
-    # 平滑 averageRating
+    # Smooth averageRating
     x_smooth = np.linspace(min(bin_centers), max(bin_centers), 300)
     y_avg_smooth = make_interp_spline(bin_centers, binned_data['averageRating'])(x_smooth)
 
-    # 平滑 Adjusted_Revenue
+    # Smooth Adjusted_Revenue
     y_rev_smooth = make_interp_spline(bin_centers, binned_data['Adjusted_Revenue'])(x_smooth)
 
-    # 绘制Runtime vs AverageRating的柱状图与平滑折线图
-    fig_avg = go.Figure()
-    # 添加柱状图
-    fig_avg.add_trace(go.Bar(
-        x=bin_centers,
-        y=binned_data['averageRating'],
-        name='Average Rating',
-        marker_color='rgba(0,123,255,0.6)'
-    ))
-    # 添加平滑折线图
-    fig_avg.add_trace(go.Scatter(
-        x=x_smooth,
-        y=y_avg_smooth,
-        mode='lines',
-        name='Smoothed Line',
-        line=dict(color='green', width=2)
-    ))
-    fig_avg.update_layout(
-        title='Runtime vs Average Rating with Smoothed Line Chart',
-        xaxis_title='Runtime (minutes)',
-        yaxis_title='Average Rating',
-        width=1000, height=600
-    )
-    fig_avg.show()
+    # Plot Runtime vs Average Rating: Bar Chart and Smoothed Line Chart
+    plt.figure(figsize=(10, 6))
+    plt.bar(bin_centers, binned_data['averageRating'], width=15, alpha=0.6, color='skyblue', label='Average Rating')
+    plt.plot(x_smooth, y_avg_smooth, color='green', linewidth=2, label='Smoothed Line')
+    plt.title('Runtime vs Average Rating with Smoothed Line Chart', fontsize=20)
+    plt.xlabel('Runtime (minutes)', fontsize=14)
+    plt.ylabel('Average Rating', fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(fontsize=12)
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
 
-    # 绘制Runtime vs Adjusted_Revenue的柱状图与平滑折线图
-    fig_rev = go.Figure()
-    # 添加柱状图
-    fig_rev.add_trace(go.Bar(
-        x=bin_centers,
-        y=binned_data['Adjusted_Revenue'],
-        name='Adjusted Revenue',
-        marker_color='rgba(255,99,132,0.6)'
-    ))
-    # 添加平滑折线图
-    fig_rev.add_trace(go.Scatter(
-        x=x_smooth,
-        y=y_rev_smooth,
-        mode='lines',
-        name='Smoothed Line',
-        line=dict(color='green', width=2)
-    ))
-    fig_rev.update_layout(
-        title='Runtime vs Adjusted Revenue with Smoothed Line Chart',
-        xaxis_title='Runtime (minutes)',
-        yaxis_title='Adjusted Revenue',
-        width=1000, height=600
-    )
+    # Plot Runtime vs Adjusted Revenue: Bar Chart and Smoothed Line Chart
+    plt.figure(figsize=(10, 6))
+    plt.bar(bin_centers, binned_data['Adjusted_Revenue'], width=15, alpha=0.6, color='salmon', label='Adjusted Revenue')
+    plt.plot(x_smooth, y_rev_smooth, color='green', linewidth=2, label='Smoothed Line')
+    plt.title('Runtime vs Adjusted Revenue with Smoothed Line Chart', fontsize=20)
+    plt.xlabel('Runtime (minutes)', fontsize=14)
+    plt.ylabel('Adjusted Revenue (scaled)', fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(fontsize=12)
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
 
-    fig_rev.show()
 
 def plot_runtime_influence_distr(cleaned_data):
-    # 提取runtime, averageRating, Adjusted_Revenue数据
+
+    # Extract runtime, averageRating, and Adjusted_Revenue data
     runtime_data = cleaned_data[['Movie runtime', 'averageRating', 'Adjusted_Revenue']].dropna()
 
-    # 移除runtime=1003的数据
+    # Remove runtime=1003 outlier
     runtime_data = runtime_data[runtime_data['Movie runtime'] != 1003]
 
-    # 分段：将runtime从0到380以20分钟为间隔分段
+    # Create bins: Divide runtime from 0 to 380 into 20-minute intervals
     bins = list(range(0, 381, 20))
 
-    # 计算每个bin的averageRating和Adjusted_Revenue的平均值
-    runtime_data['Runtime Bin'] = pd.cut(runtime_data['Movie runtime'], bins=bins, right=False)
-    binned_data = runtime_data.groupby('Runtime Bin').agg({
-        'averageRating': 'mean',
-        'Adjusted_Revenue': 'mean'
-    }).reset_index()
-
-    # 移除缺失值的时间段
-    binned_data = binned_data.dropna()
-
-    # 计算每个bin的中心点，用于平滑曲线的x轴
-    bin_centers = [(interval.left + interval.right) / 2 for interval in binned_data['Runtime Bin']]
-
-    # 平滑 averageRating
-    x_smooth = np.linspace(min(bin_centers), max(bin_centers), 300)
-    y_avg_smooth = make_interp_spline(bin_centers, binned_data['averageRating'])(x_smooth)
-
-    # 平滑 Adjusted_Revenue
-    y_rev_smooth = make_interp_spline(bin_centers, binned_data['Adjusted_Revenue'])(x_smooth)
-
-    # 绘制Runtime vs AverageRating的柱状图与平滑折线图
-    fig_avg = go.Figure()
-    # 添加柱状图
-    fig_avg.add_trace(go.Bar(
-        x=bin_centers,
-        y=binned_data['averageRating'],
-        name='Average Rating',
-        marker_color='rgba(0,123,255,0.6)'
-    ))
-    # 添加平滑折线图
-    fig_avg.add_trace(go.Scatter(
-        x=x_smooth,
-        y=y_avg_smooth,
-        mode='lines',
-        name='Smoothed Line',
-        line=dict(color='green', width=2)
-    ))
-    fig_avg.update_layout(
-        title='Runtime vs Average Rating with Smoothed Line Chart',
-        xaxis_title='Runtime (minutes)',
-        yaxis_title='Average Rating',
-        width=1000, height=600
-    )
-
-    # 绘制Runtime vs Adjusted_Revenue的柱状图与平滑折线图
-    fig_rev = go.Figure()
-    # 添加柱状图
-    fig_rev.add_trace(go.Bar(
-        x=bin_centers,
-        y=binned_data['Adjusted_Revenue'],
-        name='Adjusted Revenue',
-        marker_color='rgba(255,99,132,0.6)'
-    ))
-    # 添加平滑折线图
-    fig_rev.add_trace(go.Scatter(
-        x=x_smooth,
-        y=y_rev_smooth,
-        mode='lines',
-        name='Smoothed Line',
-        line=dict(color='green', width=2)
-    ))
-    fig_rev.update_layout(
-        title='Runtime vs Adjusted Revenue with Smoothed Line Chart',
-        xaxis_title='Runtime (minutes)',
-        yaxis_title='Adjusted Revenue',
-        width=1000, height=600
-    )
-    # 计算每个bin的averageRating和Adjusted_Revenue的平均值和电影数
+    # Calculate the average value of averageRating, Adjusted_Revenue, and Movie Count for each bin
     runtime_data['Runtime Bin'] = pd.cut(runtime_data['Movie runtime'], bins=bins, right=False)
     binned_data = runtime_data.groupby('Runtime Bin').agg({
         'averageRating': 'mean',
@@ -238,182 +144,146 @@ def plot_runtime_influence_distr(cleaned_data):
 
     binned_data = binned_data.rename(columns={'Movie runtime': 'Movie Count'})
 
+    # Remove bins with missing values
+    binned_data = binned_data.dropna()
 
-    # 绘制Runtime vs AverageRating与电影数量的柱状图和折线图
-    fig_avg = go.Figure()
-    # 添加左侧柱状图 (Average Rating)
-    fig_avg.add_trace(go.Bar(
-        x=bin_centers,
-        y=binned_data['averageRating'],
-        name='Average Rating',
-        marker_color='rgba(0,123,255,0.6)',
-        yaxis='y1'
-    ))
-    # 添加平滑折线图 (Average Rating)
-    fig_avg.add_trace(go.Scatter(
-        x=np.linspace(min(bin_centers), max(bin_centers), 300),
-        y=y_avg_smooth,
-        mode='lines',
-        name='Smoothed Line (Avg Rating)',
-        line=dict(color='green', width=2),
-        yaxis='y1'
-    ))
-    # 添加右侧柱状图 (电影数)
-    fig_avg.add_trace(go.Bar(
-        x=bin_centers,
-        y=binned_data['Movie Count'],
-        name='Movie Count',
-        marker_color='rgba(255,99,132,0.6)',
-        yaxis='y2'
-    ))
-    # 更新布局，添加第二个y轴
-    fig_avg.update_layout(
-        title='Runtime vs Average Rating and Movie Count with Smoothed Line Chart',
-        xaxis=dict(title='Runtime (minutes)'),
-        yaxis=dict(title='Average Rating', side='left', showgrid=True, zeroline=True),
-        yaxis2=dict(title='Movie Count', overlaying='y', side='right', showgrid=False, zeroline=True),
-        width=1000, height=600,
-        legend=dict(
-            x=1.05,  # 进一步调整图例位置
-            borderwidth=1
-        )
-    )
-    fig_avg.show()
+    # Calculate the center point of each bin for smooth curve plotting
+    bin_centers = [(interval.left + interval.right) / 2 for interval in binned_data['Runtime Bin']]
 
-    # 绘制Runtime vs Adjusted_Revenue与电影数量的柱状图和折线图
-    fig_rev = go.Figure()
+    # Smooth averageRating
+    x_smooth = np.linspace(min(bin_centers), max(bin_centers), 300)
+    y_avg_smooth = make_interp_spline(bin_centers, binned_data['averageRating'])(x_smooth)
 
-    # 添加左侧柱状图 (Adjusted Revenue)
-    fig_rev.add_trace(go.Bar(
-        x=bin_centers,
-        y=binned_data['Adjusted_Revenue'],
-        name='Adjusted Revenue',
-        marker_color='rgba(0,123,255,0.6)',
-        yaxis='y1'
-    ))
+    # Smooth Adjusted_Revenue
+    y_rev_smooth = make_interp_spline(bin_centers, binned_data['Adjusted_Revenue'])(x_smooth)
 
-    # 添加平滑折线图 (Adjusted Revenue)
-    fig_rev.add_trace(go.Scatter(
-        x=np.linspace(min(bin_centers), max(bin_centers), 300),
-        y=y_rev_smooth,
-        mode='lines',
-        name='Smoothed Line (Adj Revenue)',
-        line=dict(color='green', width=2),
-        yaxis='y1'
-    ))
+    # Plot Runtime vs Average Rating and Movie Count
+    fig, ax1 = plt.subplots(figsize=(10, 6))
 
-    # 添加右侧柱状图 (Movie Count)
-    fig_rev.add_trace(go.Bar(
-        x=bin_centers,
-        y=binned_data['Movie Count'],
-        name='Movie Count',
-        marker_color='rgba(255,99,132,0.6)',
-        yaxis='y2'
-    ))
+    # Plot Average Rating (left y-axis)
+    ax1.bar(bin_centers, binned_data['averageRating'], width=15, alpha=0.6, color='skyblue', label='Average Rating')
+    ax1.plot(x_smooth, y_avg_smooth, color='green', linewidth=2, label='Smoothed Avg Rating')
+    ax1.set_xlabel('Runtime (minutes)', fontsize=14)
+    ax1.set_ylabel('Average Rating', fontsize=14, color='blue')
+    ax1.tick_params(axis='y', labelcolor='blue')
+    ax1.legend(loc='upper left', fontsize=12)
 
-    # 更新布局，确保左侧和右侧 y 轴对齐且范围合理
-    fig_rev.update_layout(
-        title='Runtime vs Adjusted Revenue and Movie Count with Smoothed Line Chart',
-        xaxis=dict(title='Runtime (minutes)', showgrid=False),
-        yaxis=dict(
-            title='Adjusted Revenue (Billion)',
-            side='left',
-            showgrid=True,
-            zeroline=True,
-            range=[0, binned_data['Adjusted_Revenue'].max() * 1.1]  # 使 y 轴从 0 开始
-        ),
-        yaxis2=dict(
-            title='Movie Count',
-            overlaying='y',
-            side='right',
-            showgrid=False,
-            zeroline=True
-        ),
-        width=1000,
-        height=600,
-        legend=dict(
-            x=1.05,  # 进一步调整图例位置
-            borderwidth=1
-        )
-    )
+    # Plot Movie Count (right y-axis)
+    ax2 = ax1.twinx()
+    ax2.bar(bin_centers, binned_data['Movie Count'], width=15, alpha=0.4, color='orange', label='Movie Count')
+    ax2.set_ylabel('Movie Count', fontsize=14, color='orange')
+    ax2.tick_params(axis='y', labelcolor='orange')
+    ax2.legend(loc='upper right', fontsize=12)
 
-    fig_rev.show()
+    plt.title('Runtime vs Average Rating and Movie Count', fontsize=20)
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
+    # Plot Runtime vs Adjusted Revenue and Movie Count
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    # Plot Adjusted Revenue (left y-axis)
+    ax1.bar(bin_centers, binned_data['Adjusted_Revenue'], width=15, alpha=0.6, color='salmon', label='Adjusted Revenue')
+    ax1.plot(x_smooth, y_rev_smooth, color='green', linewidth=2, label='Smoothed Adj Revenue')
+    ax1.set_xlabel('Runtime (minutes)', fontsize=14)
+    ax1.set_ylabel('Adjusted Revenue (scaled)', fontsize=14, color='red')
+    ax1.tick_params(axis='y', labelcolor='red')
+    ax1.legend(loc='upper left', fontsize=12)
+
+    # Plot Movie Count (right y-axis)
+    ax2 = ax1.twinx()
+    ax2.bar(bin_centers, binned_data['Movie Count'], width=15, alpha=0.4, color='orange', label='Movie Count')
+    ax2.set_ylabel('Movie Count', fontsize=14, color='orange')
+    ax2.tick_params(axis='y', labelcolor='orange')
+    ax2.legend(loc='upper right', fontsize=12)
+
+    plt.title('Runtime vs Adjusted Revenue and Movie Count', fontsize=20)
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
 
 
 def plot_countries_revenue_rating(cleaned_data):
+    
+    # Filter data to ensure necessary columns have valid values
     filtered_data = cleaned_data.dropna(subset=['averageRating', 'Adjusted_Revenue', 'Movie countries'])
 
-    # 解析 'Movie countries' 并保留第一个国家
+    # Parse 'Movie countries' column and retain the first country
     filtered_data['Movie countries'] = filtered_data['Movie countries'].apply(lambda x: eval(x) if isinstance(x, str) else x)
     filtered_data['Primary Country'] = filtered_data['Movie countries'].apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else 'Unknown')
 
-    # 正向计算 position_density：评分和票房的加权平均，数值越高越靠近右上角
+    # Compute position_density: weighted average of rating and revenue (closer to top-right corner)
     filtered_data['Normalized Rating'] = filtered_data['averageRating'] / filtered_data['averageRating'].max()
     filtered_data['Normalized Revenue'] = filtered_data['Adjusted_Revenue'] / filtered_data['Adjusted_Revenue'].max()
     filtered_data['Position Density'] = (filtered_data['Normalized Rating'] + filtered_data['Normalized Revenue']) / 2
 
-    # 绘制散点图：x轴为评分，y轴为票房，颜色表示 position_density
-    fig = px.scatter(
-        filtered_data,
-        x='averageRating',
-        y='Adjusted_Revenue',
-        color='Position Density',  # 正向映射
-        title="Movie Ratings vs Adjusted Revenue with Position-Based Colors",
-        labels={
-            "averageRating": "Average Rating",
-            "Adjusted_Revenue": "Adjusted Revenue (USD)",
-            "Position Density": "Position Density"
-        },
-        hover_data=['Movie name', 'Primary Country'],  # 显示电影名称和国家
-        color_continuous_scale='Reds',  # 从浅蓝到深蓝
-        range_color=[0, 1],  # 映射范围设置
-        width=1000,
-        height=700
+    # Set up the scatter plot
+    plt.figure(figsize=(10, 7))
+    norm = Normalize(vmin=0, vmax=1)
+    cmap = cm.Reds
+
+    # Scatter points with color mapped to Position Density
+    scatter = plt.scatter(
+        filtered_data['averageRating'],
+        filtered_data['Adjusted_Revenue'],
+        c=filtered_data['Position Density'],
+        cmap=cmap,
+        norm=norm,
+        s=100,  # marker size
+        alpha=0.8,
+        edgecolors='k',
+        label=None
     )
 
-    # 更新图表样式
-    fig.update_traces(marker=dict(size=10, opacity=0.8))
-    fig.update_layout(
-        xaxis=dict(title="Average Rating"),
-        yaxis=dict(title="Adjusted Revenue"),
-        coloraxis_colorbar=dict(title="Position Density")
-    )
+    # Add a color bar
+    cbar = plt.colorbar(scatter)
+    cbar.set_label('Position Density', fontsize=14)
 
-    fig.show()
+    # Label axes and add title
+    plt.xlabel('Average Rating', fontsize=14)
+    plt.ylabel('Adjusted Revenue (USD)', fontsize=14)
+    plt.title('Movie Ratings vs Adjusted Revenue with Position-Based Colors', fontsize=16)
+    
+    # Add grid and improve layout
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    
+    plt.show()
 
 
 def animate_country_rating_revenue(cleaned_data):
     filtered_data = cleaned_data.dropna(subset=['averageRating', 'Adjusted_Revenue', 'Movie release year', 'Movie countries'])
 
-    # 解析 'Movie countries' 并保留第一个国家
+    # Parse 'Movie countries' and retain the first country
     filtered_data['Movie countries'] = filtered_data['Movie countries'].apply(lambda x: eval(x) if isinstance(x, str) else x)
     filtered_data['Primary Country'] = filtered_data['Movie countries'].apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else 'Unknown')
 
-    # 确保年份为整数类型，并按年份升序排序
+    # Ensure the year is of integer type and sort by year in ascending order
     filtered_data['Movie release year'] = filtered_data['Movie release year'].astype(int)
     filtered_data = filtered_data.sort_values(by='Movie release year', ascending=True)
 
-    # 获取所有年份和国家的组合，确保所有国家和年份完整覆盖
+    # Get all combinations of years and countries to ensure full coverage of all countries and years
     all_years = filtered_data['Movie release year'].unique()
     all_countries = filtered_data['Primary Country'].unique()
     all_combinations = pd.MultiIndex.from_product(
         [all_years, all_countries], names=['Movie release year', 'Primary Country']
     ).to_frame(index=False)
 
-    # 合并原始数据，填充缺失值
+    # Merge with the original data and fill missing values
     filled_data = all_combinations.merge(filtered_data, on=['Movie release year', 'Primary Country'], how='left')
-    filled_data['averageRating'] = filled_data['averageRating'].fillna(0.1)  # 填充评分缺失值
-    filled_data['Adjusted_Revenue'] = filled_data['Adjusted_Revenue'].fillna(0.1)  # 填充票房缺失值
+    filled_data['averageRating'] = filled_data['averageRating'].fillna(0.1)  # Fill missing ratings with a default value
+    filled_data['Adjusted_Revenue'] = filled_data['Adjusted_Revenue'].fillna(0.1)  # Fill missing revenue with a default value
 
-    # 获取所有国家并分配唯一颜色
+    # Get all unique countries and assign unique colors to each
     unique_countries = filled_data['Primary Country'].unique()
-    base_colors = pc.qualitative.Bold + pc.qualitative.D3 + pc.qualitative.Light24  # 多种高对比度调色板
+    base_colors = pc.qualitative.Bold + pc.qualitative.D3 + pc.qualitative.Light24  # High-contrast color palettes
     color_map = {country: base_colors[i % len(base_colors)] for i, country in enumerate(unique_countries)}
 
-    # 强制时间轮播帧升序，保证年份逐年播放
+    # Force chronological animation frames to ensure playback progresses year by year
     filled_data['Primary Country'] = filled_data['Primary Country'].astype(str)
 
-    # 绘制时间轮播图
+    # Create an animated scatter plot
     fig = px.scatter(
         filled_data,
         x='averageRating',
@@ -436,10 +306,10 @@ def animate_country_rating_revenue(cleaned_data):
         height=700
     )
 
-    # 确保所有国家在图例中显示
+    # Ensure all countries appear in the legend
     fig.for_each_trace(lambda t: t.update(marker=dict(opacity=0.7)))
 
-    # 美化布局
+    # Beautify layout
     fig.update_layout(
         xaxis=dict(title="Average Rating", range=[0, 10]),
         yaxis=dict(title="Adjusted Revenue (USD)", range=[0, filled_data['Adjusted_Revenue'].max() * 1.1]),
@@ -463,6 +333,7 @@ def animate_country_rating_revenue(cleaned_data):
 
 
 def plot_ratio_vs_language(cleaned_data, higher, lower):
+
     # List of valid languages to filter out non-language categories
     valid_languages = [
         'English', 'French', 'Spanish', 'German', 'Chinese', 'Japanese', 'Italian', 'Korean', 'Russian', 'Hindi',
@@ -510,72 +381,43 @@ def plot_ratio_vs_language(cleaned_data, higher, lower):
     # Calculate performance ratios for Top 30 languages
     over_ratio_top30, under_ratio_top30 = calculate_language_performance(higher_top30, lower_top30, cleaned_data_top30)
 
-    # 提取前30语言的overperformed和underperformed占比
+    # Extract data for visualization
     data = pd.DataFrame({
-        'Language': top_languages[:30],  # 取前30个语言
+        'Language': top_languages[:30],
         'Overperformed': [over_ratio_top30.get(lang, 0) for lang in top_languages[:30]],
         'Underperformed': [under_ratio_top30.get(lang, 0) for lang in top_languages[:30]]
     })
-
-    # 添加Z轴数据表示比值
+    
     data['Ratio'] = data['Overperformed'] / data['Underperformed']
 
-    # 使用Plotly Graph Objects模拟三维柱状图
-    fig = go.Figure()
+    # Plot the data using Matplotlib
+    fig = plt.figure(figsize=(12, 8))
+    ax = fig.add_subplot(111, projection='3d')
 
-    # 添加每个语言的柱状条
-    for i, row in data.iterrows():
-        fig.add_trace(go.Scatter3d(
-            x=[row['Underperformed'], row['Underperformed']],
-            y=[row['Overperformed'], row['Overperformed']],
-            z=[0, row['Ratio']],
-            mode='lines',
-            line=dict(color=pc.qualitative.Dark24[i % len(pc.qualitative.Dark24)], width=15),
-            name=row['Language']
-        ))
+    # Set up axes
+    x = data['Underperformed']
+    y = data['Overperformed']
+    z = np.zeros(len(data))  # Base for bars
+    dx = dy = 0.05  # Width and depth of bars
+    dz = data['Ratio']
 
-    # 设置布局
-    fig.update_layout(
-        scene=dict(
-            xaxis=dict(title='Underperformed',
-                    titlefont=dict(size=14),
-                    tickfont=dict(size=12),
-                    backgroundcolor='white',
-                    gridcolor='black',
-                    showline=True,
-                    zerolinecolor='black',
-                    showspikes=False),
-            yaxis=dict(title='Overperformed',
-                    titlefont=dict(size=14),
-                    tickfont=dict(size=12),
-                    backgroundcolor='white',
-                    gridcolor='black',
-                    showline=True,
-                    zerolinecolor='black',
-                    showspikes=False),
-            zaxis=dict(title='Overperformed/Underperformed',
-                    titlefont=dict(size=14),
-                    tickfont=dict(size=12),
-                    backgroundcolor='white',
-                    gridcolor='black',
-                    showline=True,
-                    zerolinecolor='black',
-                    showspikes=False)
-        ),
-        title=dict(
-            text='Top 30 Movie Languages: Overperformed vs Underperformed (3D)',
-            font=dict(size=20),
-            x=0.5
-        ),
-        margin=dict(l=50, r=50, t=80, b=50),
-        legend=dict(
-            title_font=dict(size=14),
-            font=dict(size=12),
-            x=1.1, y=0.5
-        ),
-        width=1200,
-        height=900
-    )
+    # Plot bars
+    cmap = plt.get_cmap('tab20')
+    colors = cmap(np.linspace(0, 1, len(data)))
 
-    # 显示图表
-    fig.show()
+    for i in range(len(data)):
+        ax.bar3d(
+            x[i], y[i], z[i], dx, dy, dz[i],
+            color=colors[i], edgecolor='black', label=data['Language'][i] if i < 10 else ""
+        )
+
+    # Set labels and title
+    ax.set_xlabel('Underperformed', fontsize=12)
+    ax.set_ylabel('Overperformed', fontsize=12)
+    ax.set_zlabel('Ratio (Overperformed/Underperformed)', fontsize=12)
+    ax.set_title('Top 30 Movie Languages: Overperformed vs Underperformed (3D)', fontsize=16)
+
+    # Adjust layout and show
+    ax.legend(loc='upper right', fontsize=10, bbox_to_anchor=(1.2, 1.0), title='Languages')
+    plt.tight_layout()
+    plt.show()
