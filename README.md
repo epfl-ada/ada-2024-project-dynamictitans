@@ -125,7 +125,7 @@ Further research could explore or eliminate the influence of additional factors 
 
 ## Data Story
 
-[link to data story](https://minwenmao.github.io/)
+[link to data story](https://minwenmao.github.io/dynamictitans.github.io/)
 
 ---
 
