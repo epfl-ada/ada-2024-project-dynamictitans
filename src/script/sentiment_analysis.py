@@ -183,14 +183,14 @@ def plot_emotional_fluctuation_distr(h_standard_score, l_standard_score):
 
     # Plot the histogram for overperformers' emotional fluctuations
     plt.subplot(2, 1, 1)
-    plt.hist(h_fluctuations, bins=15, color='blue', alpha=0.7, edgecolor='black')
+    plt.hist(h_fluctuations, bins=15, color='red', alpha=0.7, edgecolor='black')
     plt.title("Emotional Fluctuations in Overperformers")
     plt.xlabel("Number of Fluctuations")
     plt.ylabel("Frequency")
 
     # Ditto for underperformers
     plt.subplot(2, 1, 2)
-    plt.hist(l_fluctuations, bins=15, color='green', alpha=0.7, edgecolor='black')
+    plt.hist(l_fluctuations, bins=15, color='blue', alpha=0.7, edgecolor='black')
     plt.title("Emotional Fluctuations in Underperformers")
     plt.xlabel("Number of Fluctuations")
     plt.ylabel("Frequency")
@@ -226,7 +226,7 @@ def plot_emotional_magnitude_distr(h_standard_score, l_standard_score):
 
     # Plot the histogram for overperformers' emotional fluctuation magnitudes
     plt.subplot(2, 1, 1)
-    plt.hist(h_fluctuations, bins=15, edgecolor='black')
+    plt.hist(h_fluctuations, bins=15, color='red', edgecolor='black')
     plt.xlim(0, 1)
     plt.title("Overperformers: Emotional Magnitude")
     plt.xlabel("Magnitude")
@@ -234,7 +234,7 @@ def plot_emotional_magnitude_distr(h_standard_score, l_standard_score):
 
     # Plot the histogram for underperformers' emotional fluctuation magnitudes
     plt.subplot(2, 1, 2)
-    plt.hist(l_fluctuations, bins=15, edgecolor='black')
+    plt.hist(l_fluctuations, bins=15, color='blue', edgecolor='black')
     plt.xlim(0, 1)
     plt.title("Underperformers: Emotional Magnitude")
     plt.xlabel("Magnitude")
@@ -301,7 +301,7 @@ def plot_regression_slope_distr(h_regression_results, l_regression_results):
     # Plot histogram of slopes for overperformers
     plt.figure(figsize=(8,6))
     plt.subplot(2, 2, 1) 
-    plt.hist(h_regression_results['slope'], bins=15, edgecolor='black')
+    plt.hist(h_regression_results['slope'], bins=15, color='red', edgecolor='black')
     plt.xlim(-0.01, 0.01)
     plt.title("Overperformers: Slope Distribution")
     plt.xlabel("Slope")
@@ -309,7 +309,7 @@ def plot_regression_slope_distr(h_regression_results, l_regression_results):
 
     # Plot histogram of slopes for underperformers
     plt.subplot(2, 2, 2)
-    plt.hist(l_regression_results['slope'], bins=15, edgecolor='black')
+    plt.hist(l_regression_results['slope'], bins=15, color='blue', edgecolor='black')
     plt.xlim(-0.03, 0.03)
     plt.title("Underperformers: Slope Distribution")
     plt.xlabel("Slope")
@@ -323,14 +323,14 @@ def plot_regression_intercept_distr(h_regression_results, l_regression_results):
     # Plot histogram of intercepts for overperformers
     plt.figure(figsize=(8,6))
     plt.subplot(2, 2, 1)
-    plt.hist(h_regression_results['intercept'], bins=15, edgecolor='black')
+    plt.hist(h_regression_results['intercept'], bins=15, color='red', edgecolor='black')
     plt.title("Overperformers: Intercept Distribution")
     plt.xlabel("Intercept")
     plt.ylabel("Frequency")
 
     # Plot histogram of intercepts for underperformers
     plt.subplot(2, 2, 2) 
-    plt.hist(l_regression_results['intercept'], bins=15, edgecolor='black')
+    plt.hist(l_regression_results['intercept'], bins=15, color='blue', edgecolor='black')
     plt.title("Underperformers: Intercept Distribution")
     plt.xlabel("Intercept")
     plt.ylabel("Frequency")

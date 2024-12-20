@@ -327,25 +327,13 @@ def plot_correlation_per_timeframe(cleaned_data, selected_years):
     plt.show()
 
 
-def plot_genre_distribution(cleaned_data, model):
+def plot_genre_distribution(higher, lower):
     """
     Plots the barplot of genre distribution of "underperformers" and "overperformers" respectively compared to linear regression data
     :param cleaned_data: Processed dataframe
     :param model: statsmodels.formula.api.ols regression model already fitted on data
     :return: Barplot
     """
-    predictions = model.predict()
-    std_dev = np.std(predictions - cleaned_data['Log_Revenue'])
-
-    # Calculate residuals between actual and predicted values
-    residuals = cleaned_data['Log_Revenue'] - predictions
-
-    # Identify outliers where the absolute residual is greater than the standard deviation
-    outliers = cleaned_data[np.abs(residuals) > std_dev]['Log_Revenue']
-
-    # Separate data into high residuals (above +std_dev) and low residuals (below -std_dev)
-    higher = cleaned_data[residuals > std_dev].copy()
-    lower = cleaned_data[residuals < -std_dev].copy()
 
     # Extract the first, second, and third genres for each movie in 'higher'
     higher.loc[:, 'First genre'] = higher['Movie genres'].apply(lambda x: x[0] if len(x) > 0 else None)  # First genre

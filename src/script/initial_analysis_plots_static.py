@@ -11,11 +11,9 @@ from scipy.interpolate import make_interp_spline
 
 
 def plot_data_languages(cleaned_data):
-    # 提取和展开所有语言到一个列表中
+    # Extract all languages into a list
     languages_list = cleaned_data['Movie languages'].dropna().apply(lambda x: list(ast.literal_eval(x).values()))
     flattened_languages = [lang for sublist in languages_list for lang in sublist]
-
-    # 统计每种语言的出现次数
     language_counts = pd.Series(flattened_languages).value_counts()
 
     # Select the top 10 most common languages
@@ -87,11 +85,9 @@ def plot_runtime_influence_distr_short(cleaned_data):
     # Calculate the center point of each bin for smooth curve plotting
     bin_centers = [(interval.left + interval.right) / 2 for interval in binned_data['Runtime Bin']]
 
-    # Smooth averageRating
+    # Smooth Average Rating and Adjusted Revenue
     x_smooth = np.linspace(min(bin_centers), max(bin_centers), 300)
     y_avg_smooth = make_interp_spline(bin_centers, binned_data['averageRating'])(x_smooth)
-
-    # Smooth Adjusted_Revenue
     y_rev_smooth = make_interp_spline(bin_centers, binned_data['Adjusted_Revenue'])(x_smooth)
 
     # Plot Runtime vs Average Rating: Bar Chart and Smoothed Line Chart
@@ -123,7 +119,10 @@ def plot_runtime_influence_distr_short(cleaned_data):
     plt.show()
 
 
-def plot_runtime_influence_distr(cleaned_data):
+def plot_runtime_influence_distr(cleaned_data, name):
+
+    colors = {"overperformers": "red", "underperformers": "blue", "general": "purple"}
+    color = colors[name]
 
     # Extract runtime, averageRating, and Adjusted_Revenue data
     runtime_data = cleaned_data[['Movie runtime', 'averageRating', 'Adjusted_Revenue']].dropna()
@@ -150,23 +149,21 @@ def plot_runtime_influence_distr(cleaned_data):
     # Calculate the center point of each bin for smooth curve plotting
     bin_centers = [(interval.left + interval.right) / 2 for interval in binned_data['Runtime Bin']]
 
-    # Smooth averageRating
+    # Smooth Average Rating and Adjusted Revenue
     x_smooth = np.linspace(min(bin_centers), max(bin_centers), 300)
     y_avg_smooth = make_interp_spline(bin_centers, binned_data['averageRating'])(x_smooth)
-
-    # Smooth Adjusted_Revenue
     y_rev_smooth = make_interp_spline(bin_centers, binned_data['Adjusted_Revenue'])(x_smooth)
 
-    # Plot Runtime vs Average Rating and Movie Count
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
     # Plot Average Rating (left y-axis)
-    ax1.bar(bin_centers, binned_data['averageRating'], width=15, alpha=0.6, color='skyblue', label='Average Rating')
+    ax1.bar(bin_centers, binned_data['averageRating'], width=15, alpha=0.6, color=color, label='Average Rating')
     ax1.plot(x_smooth, y_avg_smooth, color='green', linewidth=2, label='Smoothed Avg Rating')
     ax1.set_xlabel('Runtime (minutes)', fontsize=14)
-    ax1.set_ylabel('Average Rating', fontsize=14, color='blue')
-    ax1.tick_params(axis='y', labelcolor='blue')
+    ax1.set_ylabel('Average Rating', fontsize=14, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
     ax1.legend(loc='upper left', fontsize=12)
+    ax1.set_ylim(bottom=0)
 
     # Plot Movie Count (right y-axis)
     ax2 = ax1.twinx()
@@ -174,8 +171,9 @@ def plot_runtime_influence_distr(cleaned_data):
     ax2.set_ylabel('Movie Count', fontsize=14, color='orange')
     ax2.tick_params(axis='y', labelcolor='orange')
     ax2.legend(loc='upper right', fontsize=12)
+    ax2.set_ylim(bottom=0)
 
-    plt.title('Runtime vs Average Rating and Movie Count', fontsize=20)
+    plt.title(f'Runtime vs Average Rating and Movie Count, {name}', fontsize=20)
     plt.grid(alpha=0.3)
     plt.tight_layout()
     plt.show()
@@ -184,12 +182,13 @@ def plot_runtime_influence_distr(cleaned_data):
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
     # Plot Adjusted Revenue (left y-axis)
-    ax1.bar(bin_centers, binned_data['Adjusted_Revenue'], width=15, alpha=0.6, color='salmon', label='Adjusted Revenue')
+    ax1.bar(bin_centers, binned_data['Adjusted_Revenue'], width=15, alpha=0.6, color=color, label='Adjusted Revenue')
     ax1.plot(x_smooth, y_rev_smooth, color='green', linewidth=2, label='Smoothed Adj Revenue')
     ax1.set_xlabel('Runtime (minutes)', fontsize=14)
-    ax1.set_ylabel('Adjusted Revenue (scaled)', fontsize=14, color='red')
-    ax1.tick_params(axis='y', labelcolor='red')
+    ax1.set_ylabel('Adjusted Revenue (scaled)', fontsize=14, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
     ax1.legend(loc='upper left', fontsize=12)
+    ax1.set_ylim(bottom=0)
 
     # Plot Movie Count (right y-axis)
     ax2 = ax1.twinx()
@@ -197,8 +196,9 @@ def plot_runtime_influence_distr(cleaned_data):
     ax2.set_ylabel('Movie Count', fontsize=14, color='orange')
     ax2.tick_params(axis='y', labelcolor='orange')
     ax2.legend(loc='upper right', fontsize=12)
+    ax2.set_ylim(bottom=0)
 
-    plt.title('Runtime vs Adjusted Revenue and Movie Count', fontsize=20)
+    plt.title(f'Runtime vs Adjusted Revenue and Movie Count, {name}', fontsize=20)
     plt.grid(alpha=0.3)
     plt.tight_layout()
     plt.show()
@@ -230,7 +230,7 @@ def plot_countries_revenue_rating(cleaned_data):
         c=filtered_data['Position Density'],
         cmap=cmap,
         norm=norm,
-        s=100,  # marker size
+        s=100,
         alpha=0.8,
         edgecolors='k',
         label=None
@@ -390,7 +390,6 @@ def plot_ratio_vs_language(cleaned_data, higher, lower):
     
     data['Ratio'] = data['Overperformed'] / data['Underperformed']
 
-    # Plot the data using Matplotlib
     fig = plt.figure(figsize=(12, 8))
     ax = fig.add_subplot(111, projection='3d')
 
@@ -398,7 +397,7 @@ def plot_ratio_vs_language(cleaned_data, higher, lower):
     x = data['Underperformed']
     y = data['Overperformed']
     z = np.zeros(len(data))  # Base for bars
-    dx = dy = 0.05  # Width and depth of bars
+    dx = dy = 0.005  # Width and depth of bars
     dz = data['Ratio']
 
     # Plot bars
@@ -409,6 +408,11 @@ def plot_ratio_vs_language(cleaned_data, higher, lower):
         ax.bar3d(
             x[i], y[i], z[i], dx, dy, dz[i],
             color=colors[i], edgecolor='black', label=data['Language'][i] if i < 10 else ""
+        )
+        ax.text(
+            x[i], y[i], dz[i] + 0.2,
+            data['Language'][i],
+            ha='center', va='bottom', fontsize=10, rotation=45
         )
 
     # Set labels and title
