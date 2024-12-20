@@ -43,67 +43,72 @@ The existence of the *Transformers* movie franchise raises a curious question: h
 ### I. Initial Data Collection & Integration
 
 1. Dataset Merging and Filtering
-- **Integration:** We merge the CMU and IMDb datasets based on movie titles, as no direct mapping exists between the two datasets.  
-- **Deduplication:** This approach is likely to introduce duplicates, which are filtered out using additional shared identifiers such as runtime and release year.  
-- **Filtering:** To avoid rating bias, movies with fewer than 30 votes are excluded.  
-- **Result:** A refined dataset of 7,440 entries with valid box office revenue records is retained.
+- We integrate the CMU and IMDb datasets. Since no direct mapping exists between the two datasets, we merge them based on movie titles.  
+- This approach is likely to introduce duplicates, which are filtered out using additional shared identifiers such as runtime and release year.  
+- The final dataset retains only movies that match these criteria. To avoid rating bias, we exclude movies with fewer than 30 votes. This yields a refined dataset of 7,440 entries with valid box office revenue records.  
 
-### 2. Inflation Adjustment
-- **Adjustment Process:** Box office revenues are adjusted to 2024 USD using the Consumer Price Index (CPI) as a proxy for yearly inflation.  
-- **Consistency:** U.S. CPI values are used, given the U.S.’s prominence in global cinema.  
-- **Validation:** A distribution of the dataset by language is plotted to tentatively corroborate this approach.
+2. Inflation Adjustment
+- Box office revenues are adjusted to 2024 USD using the Consumer Price Index (CPI) as a proxy for yearly inflation.  
+- U.S. CPI values are used for consistency, given the U.S.’s prominence in global cinema.  
+- To corroborate this approach, we also plot the distribution of the dataset by language.
+
+---
 
 ### II. General Discrepancy Analysis
 
-1. Correlation Exploration by Timeframe
-- **Objective:** Analyze correlations between inflation-adjusted box office revenue and IMDb ratings over specific years (1915–2005, at 10-year intervals).  
-- **Methodology:** Scatterplots and Ordinary Least Squares (OLS) regression are used to quantify linear relationships, identify trends, and spot deviations.
+1. General Correlation Exploration
+- We attempt to identify trends across the entire dataset by using scatterplots and Ordinary Least Squares (OLS) regression to quantify linear relationships.  
 
-2. Correlation Exploration by Country
-- **Objective:** Perform correlation analysis across countries.  
-- **Focus:** The primary genre of each movie, as listed in the CMU dataset.
+2. Correlation Exploration through Specific Cases
+- We analyze the correlation between inflation-adjusted box office revenue and IMDb ratings over specific years (1915-2005, in 10-year intervals). 
+- Similar correlation analysis is conducted across countries.  
 
 3. Runtime Analysis
-- **Objective:** Explore the correlation between runtime and both revenue and ratings.  
-- **Visualization:**  
-  - Scatterplots for runtime versus revenue and ratings.  
-  - Bar plots showing the distribution of runtime, revenue, and the number of movies across runtime ranges.  
-- **Purpose:** Establish groundwork for analyzing the role of runtime in outlier identification.
+- We explore correlations between runtime and both revenue and ratings.  
+- This is done using scatterplots and bar charts showing the distribution of runtime, revenue, and the number of movies within various runtime ranges.  
+- This serves as groundwork for later analysis on the role of runtime in outlier identification.
+
+---
 
 ### III. Outlier Identification
 
 1. Classification of Films by Critical and Commercial Success
-- **Criteria:**  
-  - **“Overperformers”**: Films with box office residuals ≥ +1 standard deviation and ratings < 6.5.  
-  - **“Underperformers”**: Films with box office residuals ≤ -1 standard deviation and ratings ≥ 6.5.  
+- Films are classified based on their inflation-adjusted box office residuals and IMDb ratings:  
+  - **“Overperformers”**: Box office residuals ≥ +1 standard deviation from the regression line, and ratings < 6.5.  
+  - **“Underperformers”**: Box office residuals ≤ -1 standard deviation from the regression line, and ratings ≥ 6.5.
 
-### IV. Outlier Distribution Analysis
+---
+
+### IV. Distribution Analysis
 
 1. Overall Distribution Analysis
-- **Objective:** Analyze distributions of attributes like language and shared cast members for high-discrepancy categories (e.g., “overperformers” and “underperformers”).
+- For high-discrepancy categories (e.g., “overperformers” and “underperformers”), we analyze distributions of attributes such as language and shared cast members.  
 
 2. Runtime Distribution Analysis
-- **Extension:** Expand the runtime correlation analysis from Section II.  
-- **Analysis:** Distributions of box office revenue and ratings over runtime, focusing on the identified outlier categories.  
-- **Visualization:** Bar charts for clearer comparisons.
+- Extending the runtime correlation from Section II, we analyze the distributions of box office revenue and ratings over runtime for both outlier categories, once again using bar charts.  
 
 3. Genre Distribution Analysis
-- **Analysis:** Apply distribution analysis to the top 10 primary genres within each discrepancy category.  
-- **Additional Exploration:** Investigate connections between genres and actor gender using tools like chord diagrams.
+- We apply distribution analysis to the top 10 primary genres within each outlier category.  
+- Additionally, we investigate connections between genres and actor gender within each outlier category using tools like chord diagrams.  
+
+---
 
 ### V. Sentiment Analysis
 
+We perform sentiment analysis on IMDb user reviews, using two complementary schemes:  
+
 1. Sentiment Distribution
-- **Methodology:** Use a discrete emotion labeling scheme via a BERT model pre-trained on the English Twitter Emotion dataset.  
-- **Objective:** Analyze the comparative distribution of emotions such as anger and worry across films.
+- Sentiments are analyzed using a discrete emotion labeling scheme, employing a BERT model pre-trained on the English Twitter Emotion dataset.  
+- This reveals the comparative distribution of emotions like anger and worry across films.  
 
 2. Sentiment Trajectory Plotting
-- **Methodology:** Use a continuous negative-to-positive scoring scheme (SnowNLP library) to generate sentiment trajectories for each film.  
-- **Aggregations:** Form an “average sentiment profile” for each discrepancy type.  
-- **Further Analysis:**  
+- A continuous negative-to-positive scoring scheme (using the SnowNLP library) is applied to generate sentiment trajectories for each film.  
+- Aggregated trajectories form an "average sentiment profile" for each discrepancy type.  
+- Further analysis includes:  
   - Distribution of films by the number of notable emotional fluctuations.  
-  - Overall magnitude of emotional span.  
-  - Emotional trajectory slopes and baselines (y-intercepts) derived via linear regression.
+  - Distribution of films by overall magnitude of emotional span.  
+  - Distribution of films by emotional trajectory (slopes) and baselines (y-intercepts), derived using linear regression.  
+
 
 ### VI. Current Results Highlight
 
