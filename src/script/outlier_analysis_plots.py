@@ -499,7 +499,7 @@ def get_top_outlier_actors(higher, lower):
     ]
     # Load character metadata from the dataset
     char_metadata = pd.read_csv(
-        "..\..\data\character.metadata.tsv",
+        "/Users/cklplanet/Desktop/kaile_epfl_files/fall_2024/ADA/project_P2/data/character.metadata.tsv",
         sep='\t',
         header=None,
         names=columns_to_use
