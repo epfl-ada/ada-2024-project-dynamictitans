@@ -97,7 +97,7 @@ def plot_time_series_kmeans(n, labels, model, h_formatted_series):
 
         for i, label in enumerate(labels):
             if label == cluster:
-                plt.plot(h_formatted_series[i].ravel(), color='gray', alpha=0.5)  # 无标签灰色曲线
+                plt.plot(h_formatted_series[i].ravel(), color='gray', alpha=0.5)  # All the other trajectories marked in gray
 
         plt.plot(
             model.cluster_centers_[cluster].ravel(),
@@ -124,7 +124,7 @@ def plot_time_series_mean(labels, model, h_formatted_series, name):
 
     for i, label in enumerate(labels):
         if label == 0:
-            plt.plot(h_formatted_series[i].ravel(), color='gray', alpha=0.5)  # 无标签灰色曲线
+            plt.plot(h_formatted_series[i].ravel(), color='gray', alpha=0.5)  # All the other trajectories marked in gray
 
     plt.plot(
         model.cluster_centers_[0].ravel(),
@@ -256,7 +256,7 @@ def linear_regression_on_sequences(standard):
         y = np.array(sequence)
         x = np.arange(len(y))   # a sequence of integers from 0 to len(y)-1
         
-        # Add a constant term (intercept) to the independent variable
+        # Add a constant term/intercept to the independent variable
         x = sm.add_constant(x)
     
         model = sm.OLS(y, x).fit()
@@ -265,14 +265,14 @@ def linear_regression_on_sequences(standard):
         coefficients = model.params 
         p_values = model.pvalues 
         
-        # Check if the p-value for the slope is below the significance threshold (0.1)
+        # We use a significance threshold of 0.1 here
         if p_values[1] < 0.1:
             results.append({
-                "sequence_index": idx,            # Sequence index
-                "intercept": coefficients[0],     # Intercept
-                "slope": coefficients[1],         # Slope
-                "p_value_intercept": p_values[0], # p-value for the intercept
-                "p_value_slope": p_values[1]      # p-value for the slope
+                "sequence_index": idx,     
+                "intercept": coefficients[0], 
+                "slope": coefficients[1], 
+                "p_value_intercept": p_values[0], 
+                "p_value_slope": p_values[1]
             })
     
     return pd.DataFrame(results)

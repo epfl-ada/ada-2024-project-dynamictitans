@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib import cm
+from scipy.stats import sem
 import ast
 import pandas as pd
 import numpy as np
@@ -133,15 +134,22 @@ def plot_runtime_influence_distr(cleaned_data, name):
     # Create bins: Divide runtime from 0 to 380 into 20-minute intervals
     bins = list(range(0, 381, 20))
 
-    # Calculate the average value of averageRating, Adjusted_Revenue, and Movie Count for each bin
+    # Calculate 95% confidence interval
+    def confidence_interval(data):
+        n = len(data)
+        if n < 2:  # Can't calculate for less than 2 data points
+            return np.nan
+        return 1.96 * sem(data)
+    
+    # Calculate the average value of averageRating, Adjusted_Revenue, and Movie Count for each bin, as well as the confidence interval
     runtime_data['Runtime Bin'] = pd.cut(runtime_data['Movie runtime'], bins=bins, right=False)
     binned_data = runtime_data.groupby('Runtime Bin').agg({
-        'averageRating': 'mean',
-        'Adjusted_Revenue': 'mean',
+        'averageRating': ['mean', confidence_interval],
+        'Adjusted_Revenue': ['mean', confidence_interval],
         'Movie runtime': 'count'
     }).reset_index()
 
-    binned_data = binned_data.rename(columns={'Movie runtime': 'Movie Count'})
+    binned_data.columns = ['Runtime Bin', 'averageRating', 'Avg Rating CI', 'Adjusted_Revenue', 'Revenue CI', 'Movie Count']
 
     # Remove bins with missing values
     binned_data = binned_data.dropna()
@@ -157,7 +165,7 @@ def plot_runtime_influence_distr(cleaned_data, name):
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
     # Plot Average Rating (left y-axis)
-    ax1.bar(bin_centers, binned_data['averageRating'], width=15, alpha=0.6, color=color, label='Average Rating')
+    ax1.bar(bin_centers, binned_data['averageRating'], width=15, alpha=0.6, color=color, label='Average Rating', yerr=binned_data['Avg Rating CI'], capsize=5)
     ax1.plot(x_smooth, y_avg_smooth, color='green', linewidth=2, label='Smoothed Avg Rating')
     ax1.set_xlabel('Runtime (minutes)', fontsize=14)
     ax1.set_ylabel('Average Rating', fontsize=14, color=color)
@@ -182,7 +190,7 @@ def plot_runtime_influence_distr(cleaned_data, name):
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
     # Plot Adjusted Revenue (left y-axis)
-    ax1.bar(bin_centers, binned_data['Adjusted_Revenue'], width=15, alpha=0.6, color=color, label='Adjusted Revenue')
+    ax1.bar(bin_centers, binned_data['Adjusted_Revenue'], width=15, alpha=0.6, color=color, label='Adjusted Revenue', yerr=binned_data['Revenue CI'], capsize=5)
     ax1.plot(x_smooth, y_rev_smooth, color='green', linewidth=2, label='Smoothed Adj Revenue')
     ax1.set_xlabel('Runtime (minutes)', fontsize=14)
     ax1.set_ylabel('Adjusted Revenue (scaled)', fontsize=14, color=color)
@@ -236,16 +244,12 @@ def plot_countries_revenue_rating(cleaned_data):
         label=None
     )
 
-    # Add a color bar
     cbar = plt.colorbar(scatter)
     cbar.set_label('Position Density', fontsize=14)
-
-    # Label axes and add title
     plt.xlabel('Average Rating', fontsize=14)
     plt.ylabel('Adjusted Revenue (USD)', fontsize=14)
     plt.title('Movie Ratings vs Adjusted Revenue with Position-Based Colors', fontsize=16)
     
-    # Add grid and improve layout
     plt.grid(alpha=0.3)
     plt.tight_layout()
     
@@ -415,13 +419,11 @@ def plot_ratio_vs_language(cleaned_data, higher, lower):
             ha='center', va='bottom', fontsize=10, rotation=45
         )
 
-    # Set labels and title
     ax.set_xlabel('Underperformed', fontsize=12)
     ax.set_ylabel('Overperformed', fontsize=12)
     ax.set_zlabel('Ratio (Overperformed/Underperformed)', fontsize=12)
     ax.set_title('Top 30 Movie Languages: Overperformed vs Underperformed (3D)', fontsize=16)
 
-    # Adjust layout and show
     ax.legend(loc='upper right', fontsize=10, bbox_to_anchor=(1.2, 1.0), title='Languages')
     plt.tight_layout()
     plt.show()

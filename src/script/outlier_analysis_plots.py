@@ -19,24 +19,16 @@ def plot_by_year_nonadjusted(cleaned_data):
     """
     # Calculate the average box office revenue per release year
     box_office_by_year = cleaned_data.groupby('Movie release year')['Movie box office revenue'].mean().reset_index()
-
-    # Set up the figure size for the plot
     plt.figure(figsize=(10, 6))
 
     # Plot the average box office revenue by release year, with markers on each point
     plt.plot(box_office_by_year['Movie release year'], box_office_by_year['Movie box office revenue'], marker='o')
 
-    # Label the x and y axes
     plt.xlabel('Year')
     plt.ylabel('Average Box Office Revenue')
 
-    # Set the title for the plot
     plt.title('Yearly Variation in Average Box Office Revenue')
-
-    # Add a grid for better readability
     plt.grid(True)
-
-    # Display the plot
     plt.show()
 
 
@@ -65,14 +57,12 @@ def plot_by_year_comparison_outlier(cleaned_data, outlier_years):
                 revenue = adjusted_revenue[years == year].values[0]  # Get revenue value for the year
                 plt.scatter(year, revenue, s=150, edgecolor='darkred', facecolor='none', linewidth=2)
 
-    # Adding labels and title
     plt.xlabel('Year')
     plt.ylabel('Revenue')
     plt.title('Yearly Comparison of Adjusted Revenue and Original Box Office Revenue')
     plt.legend()
     plt.grid(True)
 
-    # Display the chart
     plt.show()
 
 
@@ -82,22 +72,18 @@ def plot_distr_unadjusted(cleaned_data):
     :param cleaned_data: Processed dataframe
     :return: hexbin + kde plot
     """
-
-    # Set the Seaborn theme style to white grid and use a muted color palette
     sns.set_theme(style="whitegrid", palette="muted")
 
-    # Create a joint plot with Seaborn, with a hexbin plot as the main part of the chart
+    # Create a joint plot, with a hexbin plot as the main part of the chart
     g = sns.jointplot(data=cleaned_data, x='Adjusted_Revenue', y='averageRating', kind="hex", cmap="Blues", height=8, gridsize=50, marginal_kws=dict(color="dodgerblue"))
 
-    # Overlay a density contour plot in the center area of the joint plot to show distribution contours
+    # Overlay a density contour plot in the center area of the joint plot
     sns.kdeplot(data=cleaned_data, x='Adjusted_Revenue', y='averageRating', cmap="Blues", fill=True, alpha=0.4, ax=g.ax_joint)
 
-    # Set the margins of the chart to fill the light blue background
     g.ax_joint.margins(0)  
     g.ax_joint.set_xlim(cleaned_data['Adjusted_Revenue'].min(), cleaned_data['Adjusted_Revenue'].max())
     g.ax_joint.set_ylim(cleaned_data['averageRating'].min(), cleaned_data['averageRating'].max())
 
-    # Set the title and labels of the plot and adjust the plot
     g.fig.suptitle("Distribution of Worldwide Gross vs IMDb Rating", fontsize=16, weight='bold', ha='center')
     g.set_axis_labels("Worldwide Gross (in billions)", "IMDb Rating", fontsize=12)
     g.fig.tight_layout()
@@ -111,7 +97,6 @@ def plot_distr_adjusted(cleaned_data):
     :param cleaned_data: Processed dataframe
     :return: hexbin + kde plot
     """
-    # Set Seaborn theme for the plot (white grid and muted color palette)
     sns.set_theme(style="whitegrid", palette="muted")
 
     # Create a hexbin jointplot to show the relationship between Adjusted World Gross (Log_Revenue) and IMDb Rating
@@ -127,19 +112,13 @@ def plot_distr_adjusted(cleaned_data):
     g.ax_joint.set_xlim(cleaned_data['Log_Revenue'].min(), cleaned_data['Log_Revenue'].max())
     g.ax_joint.set_ylim(cleaned_data['averageRating'].min(), cleaned_data['averageRating'].max())
 
-    # Set the title for the plot and adjust font size and position
     g.fig.suptitle("Distribution of Worldwide Gross (Adjusted) vs IMDb Rating", fontsize=16, weight='bold', ha='center')
-
-    # Set the labels for the x and y axes with appropriate font size
     g.set_axis_labels("Worldwide Gross (Adjusted, in billions)", "IMDb Rating", fontsize=12)
-
-    # Adjust the layout to make it more compact and prevent label overlap
     g.fig.tight_layout()
 
     # Adjust the subplot layout to ensure the title does not overlap with the plot
     g.fig.subplots_adjust(top=0.95)
 
-    # Display the plot
     plt.show()
 
 
@@ -169,13 +148,11 @@ def plot_correlation_general(cleaned_data, model, higher, lower):
     plt.plot(cleaned_data['averageRating'], predictions + std_dev, color='Orange', linestyle='--', linewidth=2, label='+1 Std Dev')
     plt.plot(cleaned_data['averageRating'], predictions - std_dev, color='Cyan', linestyle='--', linewidth=2, label='-1 Std Dev')
 
-    # Add labels and title
     plt.xlabel('Average Rating', fontsize=12)
     plt.ylabel('Log of Movie Box Office Revenue', fontsize=12)
     plt.title(f'Linear Regression of Log Box Office Revenue on Average Rating (R² = {r2_score:.2f})', fontsize=14)
     plt.legend(loc='upper left', fontsize=10)
 
-    # Show the plot
     plt.tight_layout()
     plt.show()
 
@@ -188,11 +165,7 @@ def plot_correlation_per_country(cleaned_data):
     """
     # Select the top 9 countries with the highest movie counts and get their names in a list
     selected_countries = cleaned_data['Primary Country'].value_counts().sort_values(ascending=False).head(9).index.tolist()
-
-    # Filter the data to include only the selected countries
     subset = cleaned_data[cleaned_data['Primary Country'].isin(selected_countries)]
-    # Generate a color palette for each country based on the number of selected countries
-    colors_countries = plt.cm.tab10(np.linspace(0, 1, len(selected_countries)))
 
     # Set up the figure size for the plot
     plt.figure(figsize=(18, 12))
@@ -234,22 +207,16 @@ def plot_correlation_per_country(cleaned_data):
         plt.plot(country_data['averageRating'], predictions_countries + std_dev_countries, color='orange', linestyle='--', label='+1 Std Dev')
         plt.plot(country_data['averageRating'], predictions_countries - std_dev_countries, color='Cyan', linestyle='--', label='-1 Std Dev')
 
-        # Set labels and title for the subplot
         plt.xlabel('Average Rating')
         plt.ylabel('Log of Movie Box Office Revenue')
         plt.title(f'Regression: {country} (R² = {r2_score_countries:.2f})')
-
-        # Add grid lines for better readability
         plt.grid(True, linestyle='--', alpha=0.7)
 
         # Add legend only for the first subplot
         if i == 1:  
             plt.legend(fontsize=9, loc='upper left', frameon=True, framealpha=0.8, edgecolor='gray')
 
-    # Adjust layout to prevent overlap
     plt.tight_layout()
-
-    # Display the entire set of subplots
     plt.show()
 
 
@@ -260,16 +227,9 @@ def plot_correlation_per_timeframe(cleaned_data, selected_years):
     :param selected_years: Selected timeframe in list or range() format
     :return: scatterplot
     """
-    # Find the maximum year in the dataset for reference
-    cleaned_data['Year'].max()
-
     # Subset the data to only include rows where the year is in the selected years
     subset = cleaned_data[cleaned_data['Year'].isin(selected_years)]
 
-    # Generate a color palette for each year based on the number of selected years
-    colors_years = plt.cm.tab10(np.linspace(0, 1, len(selected_years)))
-
-    # Set up the figure size for the plot
     plt.figure(figsize=(15, 10))
 
     # Loop through each selected year and create a subplot for each
@@ -308,22 +268,16 @@ def plot_correlation_per_timeframe(cleaned_data, selected_years):
         plt.plot(year_data['averageRating'], predictions_years + std_dev_years, color='orange', linestyle='--', label='+1 Std Dev')
         plt.plot(year_data['averageRating'], predictions_years - std_dev_years, color='Cyan', linestyle='--', label='-1 Std Dev')
 
-        # Set labels and title for the subplot
         plt.xlabel('Average Rating')
         plt.ylabel('Log of Movie Box Office Revenue')
         plt.title(f'Regression: {year} (R² = {r2_score_years:.2f})')
-
-        # Add grid lines for better readability
         plt.grid(True, linestyle='--', alpha=0.7)
 
         # Add legend only for the first subplot
         if i == 1:
             plt.legend(fontsize=9, loc='upper left', frameon=True, framealpha=0.8, edgecolor='gray')
 
-    # Adjust layout to prevent overlap
     plt.tight_layout()
-
-    # Display the entire set of subplots
     plt.show()
 
 
@@ -335,54 +289,49 @@ def plot_genre_distribution(higher, lower):
     :return: Barplot
     """
 
-    # Extract the first, second, and third genres for each movie in 'higher'
+    # Extract the first, second, and third genres for each movie for each category
     higher.loc[:, 'First genre'] = higher['Movie genres'].apply(lambda x: x[0] if len(x) > 0 else None)  # First genre
     higher.loc[:, 'Second genre'] = higher['Movie genres'].apply(lambda x: x[1] if len(x) > 1 else None)  # Second genre, if available
     higher.loc[:, 'Third genre'] = higher['Movie genres'].apply(lambda x: x[2] if len(x) > 2 else None)  # Third genre, if available
 
-    # Extract the first, second, and third genres for each movie in 'lower'
     lower.loc[:, 'First genre'] = lower['Movie genres'].apply(lambda x: x[0] if len(x) > 0 else None)  # First genre
     lower.loc[:, 'Second genre'] = lower['Movie genres'].apply(lambda x: x[1] if len(x) > 1 else None)  # Second genre, if available
     lower.loc[:, 'Third genre'] = lower['Movie genres'].apply(lambda x: x[2] if len(x) > 2 else None)  # Third genre, if available
 
-    # Count occurrences of each genre in the first, second, and third positions in 'higher'
-    First_t10_h = higher['First genre'].value_counts()   # Top 10 first genres in higher residuals
-    Second_t10_h = higher['Second genre'].value_counts()  # Top 10 second genres in higher residuals
-    Third_t10_h = higher['Third genre'].value_counts()    # Top 10 third genres in higher residuals
+    # Count occurrences of each genre in the first, second, and third positions among each category
+    First_t10_h = higher['First genre'].value_counts() 
+    Second_t10_h = higher['Second genre'].value_counts()
+    Third_t10_h = higher['Third genre'].value_counts()
 
-    # Count occurrences of each genre in the first, second, and third positions in 'lower'
-    First_t10_l = lower['First genre'].value_counts()   # Top 10 first genres in lower residuals
-    Second_t10_l = lower['Second genre'].value_counts()  # Top 10 second genres in lower residuals
-    Third_t10_l = lower['Third genre'].value_counts()    # Top 10 third genres in lower residuals
+    First_t10_l = lower['First genre'].value_counts()
+    Second_t10_l = lower['Second genre'].value_counts()  
+    Third_t10_l = lower['Third genre'].value_counts()
 
-    # Combine all genres (first, second, and third positions) for an overall top 10 in 'higher'
+    # Combine all genres (first, second, and third positions) for an overall top 10 among each category
     all_genres_h = pd.concat([higher['First genre'], higher['Second genre'], higher['Third genre']])
-    All_t10_h = all_genres_h.value_counts().head(10)  # Top 10 genres overall for higher residuals
+    All_t10_h = all_genres_h.value_counts().head(10)  # For both categories we take top 10 genres
 
-    # Combine all genres (first, second, and third positions) for an overall top 10 in 'lower'
     all_genres_l = pd.concat([lower['First genre'], lower['Second genre'], lower['Third genre']])
-    All_t10_l = all_genres_l.value_counts().head(10)  # Top 10 genres overall for lower residuals
+    All_t10_l = all_genres_l.value_counts().head(10)
 
-    # Initialize an array to store genre counts by position in 'higher'
-    data_h = np.zeros((len(All_t10_h.index), 3))  # Array with rows as genres and 3 columns for positions
+    # Initialize an array to store genre counts by position among overperformers
+    data_h = np.zeros((len(All_t10_h.index), 3))
     i = 0
-
-    # Populate 'data_h' with genre counts from the top 10 genres in each position in 'higher'
     for genre in All_t10_h.index:
-        data_h[i, 0] = First_t10_h.get(genre, 0)  # Count in first genre position
-        data_h[i, 1] = Second_t10_h.get(genre, 0)  # Count in second genre position
-        data_h[i, 2] = Third_t10_h.get(genre, 0)   # Count in third genre position
+        data_h[i, 0] = First_t10_h.get(genre, 0)
+        data_h[i, 1] = Second_t10_h.get(genre, 0) 
+        data_h[i, 2] = Third_t10_h.get(genre, 0) 
         i += 1
 
-    # Initialize an array to store genre counts by position in 'lower'
-    data_l = np.zeros((len(All_t10_l.index), 3))  # Array with rows as genres and 3 columns for positions
+    # Initialize an array to store genre counts by position among underperformers
+    data_l = np.zeros((len(All_t10_l.index), 3))
     i = 0
 
-    # Populate 'data_l' with genre counts from the top 10 genres in each position in 'lower'
+    # Populate 'data_l' with genre counts from the top 10 genres in each position among underperformers
     for genre in All_t10_l.index:
-        data_l[i, 0] = First_t10_l.get(genre, 0)  # Count in first genre position
-        data_l[i, 1] = Second_t10_l.get(genre, 0)  # Count in second genre position
-        data_l[i, 2] = Third_t10_l.get(genre, 0)   # Count in third genre position
+        data_l[i, 0] = First_t10_l.get(genre, 0)
+        data_l[i, 1] = Second_t10_l.get(genre, 0) 
+        data_l[i, 2] = Third_t10_l.get(genre, 0)
         i += 1
     
     categories_h = All_t10_h.index
@@ -394,40 +343,33 @@ def plot_genre_distribution(higher, lower):
     bar_width = 0.5
     index_h = np.arange(len(categories_h))
 
-    # Set figure size
     plt.figure(figsize=(16, 6))
 
     # Plot data for each subcategory in a stacked bar chart
     for i in range(len(subcategories_h)):
         plt.bar(index_h, data_h[:, i], bar_width, label=subcategories_h[i], bottom=np.sum(data_h[:, :i], axis=1))
 
-    # Add labels and title
+    # Plot overperformers
     plt.xlabel('Genre Category')
     plt.ylabel('Count')
     plt.title('Top 10 Genres in Overperformed movies')
     plt.xticks(index_h, categories_h)
     plt.legend()
-
-    # Display the plot
     plt.show()
 
     index_l = np.arange(len(categories_l))
-
-    # Set figure size
     plt.figure(figsize=(16, 6))
 
     # Plot data for each subcategory in a stacked bar chart
     for i in range(len(subcategories_l)):
         plt.bar(index_l, data_l[:, i], bar_width, label=subcategories_l[i], bottom=np.sum(data_l[:, :i], axis=1))
 
-    # Add labels and title
+    # Plot underperformers
     plt.xlabel('Genre Category')
     plt.ylabel('Count')
     plt.title('Top 10 Genres in Underperformed movies')
     plt.xticks(index_l, categories_l)
     plt.legend()
-
-    # Display the plot
     plt.show()
 
 
@@ -438,14 +380,7 @@ def plot_correlation_per_timeframe(cleaned_data, selected_years):
     :param selected_years: Selected timeframe in list or range() format
     :return: scatterplot
     """
-    # Find the maximum year in the dataset for reference
-    cleaned_data['Year'].max()
-
-    # Subset the data to only include rows where the year is in the selected years
     subset = cleaned_data[cleaned_data['Year'].isin(selected_years)]
-
-    # Generate a color palette for each year based on the number of selected years
-    colors_years = plt.cm.tab10(np.linspace(0, 1, len(selected_years)))
 
     # Set up the figure size for the plot
     plt.figure(figsize=(15, 10))
@@ -486,22 +421,16 @@ def plot_correlation_per_timeframe(cleaned_data, selected_years):
         plt.plot(year_data['averageRating'], predictions_years + std_dev_years, color='orange', linestyle='--', label='+1 Std Dev')
         plt.plot(year_data['averageRating'], predictions_years - std_dev_years, color='Cyan', linestyle='--', label='-1 Std Dev')
 
-        # Set labels and title for the subplot
         plt.xlabel('Average Rating')
         plt.ylabel('Log of Movie Box Office Revenue')
         plt.title(f'Regression: {year} (R² = {r2_score_years:.2f})')
-
-        # Add grid lines for better readability
         plt.grid(True, linestyle='--', alpha=0.7)
 
         # Add legend only for the first subplot
         if i == 1:
             plt.legend(fontsize=9, loc='upper left', frameon=True, framealpha=0.8, edgecolor='gray')
 
-    # Adjust layout to prevent overlap
     plt.tight_layout()
-
-    # Display the entire set of subplots
     plt.show()
 
 def create_chord_diagram(merged_data, targets, name):
@@ -560,7 +489,6 @@ def create_chord_diagram(merged_data, targets, name):
     return chord
 
 def get_top_outlier_actors(higher, lower):
-    # Define the columns to use for character metadata
     columns_to_use = [
         "Wikipedia movie ID", "Freebase movie ID", "Movie release date",
         "Character name", "Actor date of birth", "Actor gender", 
@@ -569,23 +497,23 @@ def get_top_outlier_actors(higher, lower):
         "Freebase character/actor map ID", "Freebase character ID", 
         "Freebase actor ID"
     ]
-    # Load character metadata from the TSV file with specified column names
+    # Load character metadata from the dataset
     char_metadata = pd.read_csv(
-        "/Users/cklplanet/Desktop/kaile_epfl_files/fall_2024/ADA/project_P2/data/character.metadata.tsv",
+        "..\..\data\character.metadata.tsv",
         sep='\t',
-        header=None,  # No header in the file; use specified column names
-        names=columns_to_use  # Use the predefined column names
+        header=None,
+        names=columns_to_use
     )
 
-    # Merge character metadata with the `higher` dataframe on common keys
+    # Obtain full overperformer character-actor combo dataframe
     higher_actor = pd.merge(
         char_metadata, higher, 
-        how='inner',  # Perform an inner join to retain matching rows
-        left_on=['Wikipedia movie ID', 'Freebase movie ID'],  # Keys from char_metadata
-        right_on=['Wikipedia movie ID', 'Freebase movie ID']  # Keys from higher
+        how='inner',  # Inner join to retain matching rows
+        left_on=['Wikipedia movie ID', 'Freebase movie ID'],
+        right_on=['Wikipedia movie ID', 'Freebase movie ID']
     )
 
-    # Drop unnecessary columns from the `higher_actor` dataframe
+    # Drop unnecessary columns
     columns_to_drop = [
         'Freebase movie ID', 'Movie release date', 'Movie languages', 
         'Movie countries', 'Movie genres', 'startYear', 
@@ -599,40 +527,26 @@ def get_top_outlier_actors(higher, lower):
     # Remove rows with missing values in the "Actor name" column
     higher_actor = higher_actor.dropna(subset=["Actor name"])
 
-    # Merge character metadata with the `lower` dataframe on common keys
+    # Obtain full underperformer character-actor combo dataframe
     lower_actor = pd.merge(
         char_metadata, lower, 
-        how='inner',  # Perform an inner join to retain matching rows
-        left_on=['Wikipedia movie ID', 'Freebase movie ID'],  # Keys from char_metadata
-        right_on=['Wikipedia movie ID', 'Freebase movie ID']  # Keys from lower
+        how='inner',
+        left_on=['Wikipedia movie ID', 'Freebase movie ID'],
+        right_on=['Wikipedia movie ID', 'Freebase movie ID']
     )
 
-    # Drop unnecessary columns from the `lower_actor` dataframe
     lower_actor = lower_actor.drop(columns=columns_to_drop)
-
-    # Remove rows with missing values in the "Actor name" column
     lower_actor = lower_actor.dropna(subset=["Actor name"])
-    # Calculate the number of appearances for each actor in the higher_actor dataset
 
-    higher_actor_counts = (
-        higher_actor.groupby("Actor name")  # Group by "Actor name"
-        .size()  # Count the occurrences for each actor
-        .reset_index(name="Appearance Count")  # Reset index and name the count column
-    )
+    # Count the number of appearances for each actor among overperformers, descending order
+    higher_actor_counts = (higher_actor.groupby("Actor name").size().reset_index(name="Appearance Count"))
+    higher_actor_sorted = higher_actor_counts.sort_values(by="Appearance Count", ascending=False)
 
-    # Sort the actors by their appearance count in descending order
-    higher_actor_sorted = higher_actor_counts.sort_values(
-        by="Appearance Count", ascending=False
-    )
-
-    # Calculate the number of times each actor appears in the dataset
-    # Group the dataset by the "Actor name" column and count the number of rows for each actor
+    # Ditto for underperformers
     lower_actor_counts = lower_actor.groupby("Actor name").size().reset_index(name="Appearance Count")
-
-    # Sort the results by the "Appearance Count" column in descending order
     lower_actor_sorted = lower_actor_counts.sort_values(by="Appearance Count", ascending=False)
 
-    # Display the top 20 actors with the highest appearance count in both categories
+    # Print then return the top 20 actors with the highest appearance count in both categories
     print("---------Actors with Top 20 Number of Appeareances among Overperforming Movies-------")
     print(higher_actor_sorted.head(20))
     print("---------Actors with Top 20 Number of Appeareances among Underperforming Movies-------")

@@ -1,5 +1,9 @@
 # Blockbusters and Busts: Unpacking the Gap Between Critics and Cash
 
+[(Link to data story)](https://minwenmao.github.io/dynamictitans.github.io/)
+
+---
+
 ## Abstract
 
 The existence of the *Transformers* movie franchise raises a curious question: how can films that critics pan become massive box office successes, while critically acclaimed gems sometimes struggle commercially? This project explores the divide between critical and financial success in cinema - or what makes them over/underperform in general when their critics ratings should predict otherwise - aiming to uncover what drives these differences. We’ll examine correlations between IMDb ratings and box office revenue to reveal general trends and identify outliers. Using a range of methodologies, from time-based and genre analyses to sentiment analysis on plot summaries, we aim to uncover patterns across genres, runtimes, and film attributes. Our approach integrates dataset merging, inflation-adjusted revenue comparisons, outlier classification, distribution analysis, and advanced sentiment modeling to answer our research questions and provide insight into this complex relationship between critics and audiences.
@@ -36,64 +40,64 @@ The existence of the *Transformers* movie franchise raises a curious question: h
 
 ## Methods
 
-# I. Initial Data Collection & Integration
+### I. Initial Data Collection & Integration
 
-## 1. Dataset Merging and Filtering
+1. Dataset Merging and Filtering
 - **Integration:** We merge the CMU and IMDb datasets based on movie titles, as no direct mapping exists between the two datasets.  
 - **Deduplication:** This approach is likely to introduce duplicates, which are filtered out using additional shared identifiers such as runtime and release year.  
 - **Filtering:** To avoid rating bias, movies with fewer than 30 votes are excluded.  
 - **Result:** A refined dataset of 7,440 entries with valid box office revenue records is retained.
 
-## 2. Inflation Adjustment
+### 2. Inflation Adjustment
 - **Adjustment Process:** Box office revenues are adjusted to 2024 USD using the Consumer Price Index (CPI) as a proxy for yearly inflation.  
 - **Consistency:** U.S. CPI values are used, given the U.S.’s prominence in global cinema.  
 - **Validation:** A distribution of the dataset by language is plotted to tentatively corroborate this approach.
 
-# II. General Discrepancy Analysis
+### II. General Discrepancy Analysis
 
-## 1. Correlation Exploration by Timeframe
+1. Correlation Exploration by Timeframe
 - **Objective:** Analyze correlations between inflation-adjusted box office revenue and IMDb ratings over specific years (1915–2005, at 10-year intervals).  
 - **Methodology:** Scatterplots and Ordinary Least Squares (OLS) regression are used to quantify linear relationships, identify trends, and spot deviations.
 
-## 2. Correlation Exploration by Country
+2. Correlation Exploration by Country
 - **Objective:** Perform correlation analysis across countries.  
 - **Focus:** The primary genre of each movie, as listed in the CMU dataset.
 
-## 3. Runtime Analysis
+3. Runtime Analysis
 - **Objective:** Explore the correlation between runtime and both revenue and ratings.  
 - **Visualization:**  
   - Scatterplots for runtime versus revenue and ratings.  
   - Bar plots showing the distribution of runtime, revenue, and the number of movies across runtime ranges.  
 - **Purpose:** Establish groundwork for analyzing the role of runtime in outlier identification.
 
-# III. Outlier Identification
+### III. Outlier Identification
 
-## 1. Classification of Films by Critical and Commercial Success
+1. Classification of Films by Critical and Commercial Success
 - **Criteria:**  
   - **“Overperformers”**: Films with box office residuals ≥ +1 standard deviation and ratings < 6.5.  
   - **“Underperformers”**: Films with box office residuals ≤ -1 standard deviation and ratings ≥ 6.5.  
 
-# IV. Outlier Distribution Analysis
+### IV. Outlier Distribution Analysis
 
-## 1. Overall Distribution Analysis
+1. Overall Distribution Analysis
 - **Objective:** Analyze distributions of attributes like language and shared cast members for high-discrepancy categories (e.g., “overperformers” and “underperformers”).
 
-## 2. Runtime Distribution Analysis
+2. Runtime Distribution Analysis
 - **Extension:** Expand the runtime correlation analysis from Section II.  
 - **Analysis:** Distributions of box office revenue and ratings over runtime, focusing on the identified outlier categories.  
 - **Visualization:** Bar charts for clearer comparisons.
 
-## 3. Genre Distribution Analysis
+3. Genre Distribution Analysis
 - **Analysis:** Apply distribution analysis to the top 10 primary genres within each discrepancy category.  
 - **Additional Exploration:** Investigate connections between genres and actor gender using tools like chord diagrams.
 
-# V. Sentiment Analysis
+### V. Sentiment Analysis
 
-## 1. Sentiment Distribution
+1. Sentiment Distribution
 - **Methodology:** Use a discrete emotion labeling scheme via a BERT model pre-trained on the English Twitter Emotion dataset.  
 - **Objective:** Analyze the comparative distribution of emotions such as anger and worry across films.
 
-## 2. Sentiment Trajectory Plotting
+2. Sentiment Trajectory Plotting
 - **Methodology:** Use a continuous negative-to-positive scoring scheme (SnowNLP library) to generate sentiment trajectories for each film.  
 - **Aggregations:** Form an “average sentiment profile” for each discrepancy type.  
 - **Further Analysis:**  
@@ -101,7 +105,7 @@ The existence of the *Transformers* movie franchise raises a curious question: h
   - Overall magnitude of emotional span.  
   - Emotional trajectory slopes and baselines (y-intercepts) derived via linear regression.
 
-# VI. Current Results Highlight
+### VI. Current Results Highlight
 
 Our preliminary findings suggest the following:  
 - **Runtime Advantage:** Overperforming films tend to perform slightly better with longer runtimes compared to underperforming films.  
@@ -121,11 +125,6 @@ Further research could explore or eliminate the influence of additional factors 
 - **Dec 17:** Finish data story draft
 - **Dec 20:** Finish webpage, Final quality check, adjustments
 
----
-
-## Data Story
-
-[link to data story](https://minwenmao.github.io/dynamictitans.github.io/)
 
 ---
 
