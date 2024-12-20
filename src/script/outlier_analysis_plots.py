@@ -558,3 +558,84 @@ def create_chord_diagram(merged_data, targets, name):
     )
 
     return chord
+
+def get_top_outlier_actors(higher, lower):
+    # Define the columns to use for character metadata
+    columns_to_use = [
+        "Wikipedia movie ID", "Freebase movie ID", "Movie release date",
+        "Character name", "Actor date of birth", "Actor gender", 
+        "Actor height (in meters)", "Actor ethnicity (Freebase ID)", 
+        "Actor name", "Actor age at movie release", 
+        "Freebase character/actor map ID", "Freebase character ID", 
+        "Freebase actor ID"
+    ]
+    # Load character metadata from the TSV file with specified column names
+    char_metadata = pd.read_csv(
+        "/Users/cklplanet/Desktop/kaile_epfl_files/fall_2024/ADA/project_P2/data/character.metadata.tsv",
+        sep='\t',
+        header=None,  # No header in the file; use specified column names
+        names=columns_to_use  # Use the predefined column names
+    )
+
+    # Merge character metadata with the `higher` dataframe on common keys
+    higher_actor = pd.merge(
+        char_metadata, higher, 
+        how='inner',  # Perform an inner join to retain matching rows
+        left_on=['Wikipedia movie ID', 'Freebase movie ID'],  # Keys from char_metadata
+        right_on=['Wikipedia movie ID', 'Freebase movie ID']  # Keys from higher
+    )
+
+    # Drop unnecessary columns from the `higher_actor` dataframe
+    columns_to_drop = [
+        'Freebase movie ID', 'Movie release date', 'Movie languages', 
+        'Movie countries', 'Movie genres', 'startYear', 
+        'Primary Country', 'Adjusted_Revenue', 'Log_Revenue', 
+        'Movie box office revenue', 'Movie runtime', 'Movie release year', 
+        'rate', 'Actor ethnicity (Freebase ID)', 'Freebase character/actor map ID', 
+        'Freebase character ID', 'Freebase actor ID', 'Actor height (in meters)'
+    ]
+    higher_actor = higher_actor.drop(columns=columns_to_drop)
+
+    # Remove rows with missing values in the "Actor name" column
+    higher_actor = higher_actor.dropna(subset=["Actor name"])
+
+    # Merge character metadata with the `lower` dataframe on common keys
+    lower_actor = pd.merge(
+        char_metadata, lower, 
+        how='inner',  # Perform an inner join to retain matching rows
+        left_on=['Wikipedia movie ID', 'Freebase movie ID'],  # Keys from char_metadata
+        right_on=['Wikipedia movie ID', 'Freebase movie ID']  # Keys from lower
+    )
+
+    # Drop unnecessary columns from the `lower_actor` dataframe
+    lower_actor = lower_actor.drop(columns=columns_to_drop)
+
+    # Remove rows with missing values in the "Actor name" column
+    lower_actor = lower_actor.dropna(subset=["Actor name"])
+    # Calculate the number of appearances for each actor in the higher_actor dataset
+
+    higher_actor_counts = (
+        higher_actor.groupby("Actor name")  # Group by "Actor name"
+        .size()  # Count the occurrences for each actor
+        .reset_index(name="Appearance Count")  # Reset index and name the count column
+    )
+
+    # Sort the actors by their appearance count in descending order
+    higher_actor_sorted = higher_actor_counts.sort_values(
+        by="Appearance Count", ascending=False
+    )
+
+    # Calculate the number of times each actor appears in the dataset
+    # Group the dataset by the "Actor name" column and count the number of rows for each actor
+    lower_actor_counts = lower_actor.groupby("Actor name").size().reset_index(name="Appearance Count")
+
+    # Sort the results by the "Appearance Count" column in descending order
+    lower_actor_sorted = lower_actor_counts.sort_values(by="Appearance Count", ascending=False)
+
+    # Display the top 20 actors with the highest appearance count in both categories
+    print("---------Actors with Top 20 Number of Appeareances among Overperforming Movies-------")
+    print(higher_actor_sorted.head(20))
+    print("---------Actors with Top 20 Number of Appeareances among Underperforming Movies-------")
+    print(lower_actor_sorted.head(20))
+
+    return higher_actor_sorted, lower_actor_sorted
