@@ -139,7 +139,7 @@ Further research could explore or eliminate the influence of additional factors 
 - **Ruoxi:** Initial analysis, Task I, Task III (co-completed), Task V, refinement of data story text
 - **Gengfu:** Initial analysis, Task I, Task II, Task III (co-completed), refinement of data story text
 - **Minwen:** Initial analysis, Task II, Task III (co-completed), Task IV, refinement of data story text, creating and final hosting of website
-- **Kaile:** problem formulation, README.md, repository compiling, clean-up, and quality check, data story drafting
+- **Kaile:** problem formulation, README.md, compiling and integrating other members' contributions, repository clean-up and quality check, data story drafting
 
 ## Repository
 
