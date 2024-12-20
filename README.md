@@ -1,6 +1,6 @@
 # Blockbusters and Busts: Unpacking the Gap Between Critics and Cash
 
-## [Link to data story](https://minwenmao.github.io/dynamictitans.github.io/)
+## >>>>> [Link to data story](https://minwenmao.github.io/dynamictitans.github.io/) <<<<<
 
 ---
 
